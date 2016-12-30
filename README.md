@@ -11,7 +11,8 @@ Mustard also extends any `CharacterSet` to act as a `TokenType` making it really
 ````Swift
 import Mustard
 
-let tokens = "123Hello world&^45.67".tokens(from: .decimalDigits, .letters)
+let messy = "123Hello world&^45.67"
+let tokens = messy.tokens(from: .decimalDigits, .letters)
 // tokens: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
 // tokens.count -> 5
 //
@@ -59,19 +60,22 @@ struct NumberToken: TokenType {
 Getting tokens using your own `TokenType` is similar to using a character set:
 
 ````Swift
-let tokens = "123Hello world&^45.67".tokens(from: NumberToken.tokenizer)
-// tokens: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
-// tokens.count -> 2
+import Mustard
+
+let messy = "123Hello world&^45.67"
+let numbers = messy.tokens(from: NumberToken.tokenizer)
+// numbers: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
+// numbers.count -> 2
 //
 // first token..
-// tokens[0].tokenType -> NumberToken
-// tokens[0].text -> "123"
-// tokens[0].range -> Range<String.Index>(0..<3)
+// numbers[0].tokenType -> NumberToken()
+// numbers[0].text -> "123"
+// numbers[0].range -> Range<String.Index>(0..<3)
 //
 // last token..
-// tokens[1].tokenType -> NumberToken
-// tokens[1].text -> "45.67"
-// tokens[1].range -> Range<String.Index>(16..<21)
+// numbers[1].tokenType -> NumberToken()
+// numbers[1].text -> "45.67"
+// numbers[1].range -> Range<String.Index>(16..<21)
 ````
 
 Creating a `NumberToken` is a trivial example where in most cases it's easier to use a character set, but unlike using a union of `CharacterSet.decimalDigits` and `CharacterSet(charactersIn: ".")`, this custom token type allows us to require a token to start with a more specific set of characters.
@@ -96,13 +100,12 @@ struct CamelCaseToken: TokenType {
 }
 ````
 
-
 ````Swift
-let tokens = "HelloWorld.tokens(from: CamelCaseToken.tokenizer)
-// tokens: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
-// tokens.count -> 2
-// tokens[0].text -> "Hello"
-// tokens[1].text -> "World"
+let words = "HelloWorld".tokens(from: CamelCaseToken.tokenizer)
+// words: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
+// words.count -> 2
+// words[0].text -> "Hello"
+// words[1].text -> "World"
 ````
 
 A more interesting example is a TokenType that allows matching of emoji characters.
@@ -144,7 +147,7 @@ struct EmojiToken: TokenType {
 }
 ````
 
-It's also possible to create a more complex type of token by basing it around an `enum`.
+It's also possible to use an `enum` to create a more complex `TokenType` that has different internal states, perhaps to bundle multiple types of token into a single type.
 
 ````Swift
 enum MixedToken: TokenType {
@@ -189,9 +192,9 @@ By defining a `typealias` for this type, you can call a convenience method `toke
 ````Swift
 typealias MixedMatch = (tokenType: MixedToken, text: String, range: Range<String.Index>)
 
-let tokens: [MixedMatch] = "123👩‍👩‍👦‍👦Hello world👶 again👶🏿 45.67".tokens()
+let matches: [MixedMatch] = "123👩‍👩‍👦‍👦Hello world👶 again👶🏿 45.67".tokens()
 
-tokens.forEach({ match in
+matches.forEach({ match in
     switch (match.token, match.text) {
     case (.word, let word): print("word:", word)
     case (.number, let number): print("number:", number)
