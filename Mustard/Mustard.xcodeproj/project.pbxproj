@@ -10,6 +10,7 @@
 		AF5DE7641E16EBD8007E2D49 /* EmojiTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */; };
 		AF5DE7661E16F71D007E2D49 /* MixedTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */; };
 		AF77D0361E18336D007287DC /* InternalStateTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF77D0351E18336D007287DC /* InternalStateTokenTests.swift */; };
+		AF77D03A1E184334007287DC /* TokenType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF77D0391E184334007287DC /* TokenType.swift */; };
 		AFC3B9271E16E379005B4A99 /* Mustard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFC3B91D1E16E379005B4A99 /* Mustard.framework */; };
 		AFC3B92C1E16E379005B4A99 /* CharacterSetTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC3B92B1E16E379005B4A99 /* CharacterSetTokenTests.swift */; };
 		AFC3B92E1E16E379005B4A99 /* Mustard.h in Headers */ = {isa = PBXBuildFile; fileRef = AFC3B9201E16E379005B4A99 /* Mustard.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -32,6 +33,7 @@
 		AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiTokenTests.swift; sourceTree = "<group>"; };
 		AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixedTokenTests.swift; sourceTree = "<group>"; };
 		AF77D0351E18336D007287DC /* InternalStateTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InternalStateTokenTests.swift; sourceTree = "<group>"; };
+		AF77D0391E184334007287DC /* TokenType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenType.swift; sourceTree = "<group>"; };
 		AFC3B91D1E16E379005B4A99 /* Mustard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Mustard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFC3B9201E16E379005B4A99 /* Mustard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mustard.h; sourceTree = "<group>"; };
 		AFC3B9211E16E379005B4A99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 		AFC3B9131E16E379005B4A99 = {
 			isa = PBXGroup;
 			children = (
+				AF77D0391E184334007287DC /* TokenType.swift */,
 				AFC3B91F1E16E379005B4A99 /* Mustard */,
 				AFC3B92A1E16E379005B4A99 /* MustardTests */,
 				AFC3B91E1E16E379005B4A99 /* Products */,
@@ -217,6 +220,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF77D03A1E184334007287DC /* TokenType.swift in Sources */,
 				AFC3B9381E16E38D005B4A99 /* Mustard.swift in Sources */,
 				AFC3B93A1E16E3DE005B4A99 /* CharacterSet+Mustard.swift in Sources */,
 			);
