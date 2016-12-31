@@ -32,7 +32,6 @@ enum MixedToken: TokenType {
         case .number: return MixedToken.numberToken.canInclude(scalar: scalar)
         case .emoji: return MixedToken.emojiToken.canInclude(scalar: scalar)
         case .none:
-            print("returning false")
             return false
         }
     }

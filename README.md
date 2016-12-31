@@ -31,7 +31,7 @@ let tokens = messy.tokens(from: .decimalDigits, .letters)
 // tokens[4].range -> Range<String.Index>(19..<21)
 ````
 
-## Creating your own Tokenizers
+## Creating your own Tokenizer
 
 From the sample text `"123Hello world&^45.67"` the sequence of characters `45.67` are not recognized as a single
 token because it contains the character `.` which isn't contained in `CharacterSet.decimalDigits`.
@@ -58,7 +58,9 @@ public protocol TokenType {
 }
 ````
 
-Many of these types will be trivial, here's an example for matching words by camel case:
+Many implementations of TokenType will be simple, a protocol extension includes default implementation of all functions except for `func canInclude(scalar: UnicodeScalar) -> Bool` so that trivial TokenTypes may only need this single method.
+
+### Example: CamelCaseToken
 
 ````Swift
 struct CamelCaseToken: TokenType {
@@ -84,10 +86,147 @@ let words = "HelloWorld".tokens(from: CamelCaseToken.tokenizer)
 // words[1].text -> "World"
 ````
 
+### Example: EmojiToken
+
+Because a single emoji character may extend over [multiple code points](https://oleb.net/blog/2016/12/emoji-4-0/) and be represented as multiple unicode scalars, then there is no out of the box `CharacterSet` for matching emoji.
+
+This is a good opportunity for creating a TokenType for matching sequences of scalar that are emoji.
+
+````Swift
+struct EmojiToken: TokenType {
+
+    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
+        return EmojiToken.isEmojiScalar(scalar)
+    }
+
+    func canInclude(scalar: UnicodeScalar) -> Bool {
+        return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
+    }
+
+    static func isJoiner(_ scalar: UnicodeScalar) -> Bool {
+        return scalar == "\u{200D}" // ZWJ/Zero-width joiner
+    }
+
+    static func isEmojiScalar(_ scalar: UnicodeScalar) -> Bool {
+
+        switch scalar {
+        case
+        "\u{0001F600}"..."\u{0001F64F}", // Emoticons
+        "\u{0001F300}"..."\u{0001F5FF}", // Misc Symbols and Pictographs
+        "\u{0001F680}"..."\u{0001F6FF}", // Transport and Map
+        "\u{00002600}"..."\u{000026FF}", // Misc symbols
+        "\u{00002700}"..."\u{000027BF}", // Dingbats
+        "\u{0000FE00}"..."\u{0000FE0F}", // Variation Selectors
+        "\u{0001F900}"..."\u{0001F9FF}", // Various (e.g. 🤖)
+        "\u{0001F1E6}"..."\u{0001F1FF}": // regional flags
+            return true
+
+        default:
+            return false
+        }
+    }
+}
+
+````
+
+## Bundling multiple TokenType into a single enum
+
+The tuple returned in the token results array has the signature `(tokenType: TokenType, text: String, range: Range<String.Index>)`
+Because the protocol TokenType is used, your code becomes less expressive.
+
+````Swift
+
+let tokens = messy.tokens(from: .decimalDigits, .letters)
+
+// neither of these blocks will be executed, but the complier has no way to know
+if tokens[0].tokenType is EmojiToken {
+    print("found emoji token")
+}
+else if tokens[0].tokenType is NumberToken {
+    print("found number token")
+}
+
+````
+
+For a little effort upfront, you can create a TokenType from an enum.
+The enum can either manage it's own cases for different types, or you can re-use existing TokenType definitions:
+
+````Swift
+// bundle multiple TokenTypes into a single type
+enum MixedToken: TokenType {
+
+    case word
+    case number
+    case emoji
+    case none
+
+    init() {
+        self = .other
+    }
+
+    static let wordToken = WordToken()
+    static let numberToken = NumberToken()
+    static let emojiToken = EmojiToken()
+
+    func canInclude(scalar: UnicodeScalar) -> Bool {
+        switch self {
+        case .word: return MixedToken.wordToken.canInclude(scalar: scalar)
+        case .number: return MixedToken.numberToken.canInclude(scalar: scalar)
+        case .emoji: return MixedToken.emojiToken.canInclude(scalar: scalar)
+        case .none:
+            return false
+        }
+    }
+
+    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType? {
+
+        if let _ = MixedToken.wordToken.tokenType(withStartingScalar: scalar) {
+            return MixedToken.word
+        }
+        else if let _ = MixedToken.numberToken.tokenType(withStartingScalar: scalar) {
+            return MixedToken.number
+        }
+        else if let _ = MixedToken.emojiToken.tokenType(withStartingScalar: scalar) {
+            return MixedToken.emoji
+        }
+        else {
+            return nil
+        }
+    }
+}
+````
+
+````Swift
+// define your own type alias for your enum-based TokenType
+typealias MixedMatch = (tokenType: MixedToken, text: String, range: Range<String.Index>)
+
+// use the `tokens()` method to grab tokens
+let matches: [MixedMatch] = "123👩‍👩‍👦‍👦Hello world👶 again👶🏿 45.67".tokens()
+
+matches.forEach({ match in
+    switch (match.token, match.text) {
+    case (.word, let word): print("word:", word)
+    case (.number, let number): print("number:", number)
+    case (.emoji, let emoji): print("emoji:", emoji)
+    case (.none, _): break
+    }
+})
+// prints:
+// number: 123
+// emoji: 👩‍👩‍👦‍👦
+// word: Hello
+// word: world
+// emoji: 👶
+// word: again
+// emoji: 👶🏿
+// number: 45.67
+````
+
+
 ## Roadmap
 - [ ] Include detailed examples and documentation
 - [ ] Ability to skip/ignore characters within match
-- [ ] Include criteria for matching end-of-token
+- [ ] Include more advanced pattern matching for matching tokens
 - [ ] Performance testing / benchmarking against Scanner
 - [ ] Make project logo ಠ_ಠ
 
