@@ -12,21 +12,22 @@ import Mustard
 
 struct EmojiToken: TokenType {
     
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
+    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
         return EmojiToken.isEmojiScalar(scalar)
     }
     
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard EmojiToken.isEmojiScalar(scalar) else {
-            return nil
-        }
-        return EmojiToken()
+    func canInclude(scalar: UnicodeScalar) -> Bool {
+        return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
+    }
+    
+    static func isJoiner(_ scalar: UnicodeScalar) -> Bool {
+        return scalar == "\u{200D}" // Zero-width joiner
     }
     
     static func isEmojiScalar(_ scalar: UnicodeScalar) -> Bool {
         
         switch scalar {
-        case "\u{200D}",                 // Zero-width joiner
+        case
         "\u{0001F600}"..."\u{0001F64F}", // Emoticons
         "\u{0001F300}"..."\u{0001F5FF}", // Misc Symbols and Pictographs
         "\u{0001F680}"..."\u{0001F6FF}", // Transport and Map

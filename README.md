@@ -2,19 +2,23 @@
 
 Mustard is a Swift library for tokenizing strings when separating a string by whitespace doesn't cut it.
 
-## Examples
+## Quick start
 
-Mustard adds the function `func tokens(from tokenizers: TokenType...) -> [Token]` to String allowing any String to  be split up by one or more `TokenType`.
+Mustard extends `String` with the method `tokens(from: CharacterSet...)` which allows you to pass in one
+or more character sets to use criteria to find tokens.
 
-Mustard also extends any `CharacterSet` to act as a `TokenType` making it really simple to start using Mustard.
+Here's an example that extracts any sequence of characters that are made up either from the digits 0-9, or by letters.
 
 ````Swift
 import Mustard
 
 let messy = "123Hello world&^45.67"
+
 let tokens = messy.tokens(from: .decimalDigits, .letters)
-// tokens: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
 // tokens.count -> 5
+// tokens: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
+// tokens is an array tuples that contains the TokenType that matched the token,
+// the actual text that was matched, and the range of the token in the original input.
 //
 // second token..
 // tokens[1].tokenType -> CharacterSet.letters
@@ -25,190 +29,80 @@ let tokens = messy.tokens(from: .decimalDigits, .letters)
 // tokens[4].tokenType -> CharacterSet.decimalDigits
 // tokens[4].text -> "67"
 // tokens[4].range -> Range<String.Index>(19..<21)
-
 ````
 
-In the example above the substring '45.67' is split into two separate tokens because the '.' character isn't within the set `CharacterSet.decimalDigits`.
+## Creating your own Tokenizers
 
-To capture non whole numbers as tokens you could either define a character set:
-`let numbers = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))`
+From the sample text `"123Hello world&^45.67"` the sequence of characters `45.67` are not recognized as a single
+token because it contains the character `.` which isn't contained in `CharacterSet.decimalDigits`.
 
-or you could define your own definition of a token by implementing the `TokenType` protocol:
+You can either use `union` and other set operations on character sets to create appropriate criteria for extracting tokens,
+or you can create your own Tokenizers by implementing the `TokenType` protocol.
 
 ````Swift
+public protocol TokenType {
 
-struct NumberToken: TokenType {
+    // return if this scalar can be included as part of this token
+    func canInclude(scalar: UnicodeScalar) -> Bool
 
-    static private let characters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
+    // return nil if there are no specific requirements for starting the token
+    // otherwise return if this scalar is a valid start for this type of token
+    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool?
 
-    // number token can include any character in 0...9 + '.'
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
-        return NumberToken.characters.contains(scalar)
-    }
+    // if this type of token can be started with this scalar, return a token to use
+    // otherwise return nil
+    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType?
 
-    // numbers must start with character 0...9
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard CharacterSet.decimalDigits.contains(scalar) else {
-            return nil
-        }
-        return NumberToken()
-    }
+    // TokenType must be able to be created with this initializer
+    init()
 }
-
 ````
 
-Getting tokens using your own `TokenType` is similar to using a character set:
-
-````Swift
-import Mustard
-
-let messy = "123Hello world&^45.67"
-let numbers = messy.tokens(from: NumberToken.tokenizer)
-// numbers: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
-// numbers.count -> 2
-//
-// first token..
-// numbers[0].tokenType -> NumberToken()
-// numbers[0].text -> "123"
-// numbers[0].range -> Range<String.Index>(0..<3)
-//
-// last token..
-// numbers[1].tokenType -> NumberToken()
-// numbers[1].text -> "45.67"
-// numbers[1].range -> Range<String.Index>(16..<21)
-````
-
-Creating a `NumberToken` is a trivial example where in most cases it's easier to use a character set, but unlike using a union of `CharacterSet.decimalDigits` and `CharacterSet(charactersIn: ".")`, this custom token type allows us to require a token to start with a more specific set of characters.
-
-To highlight another example usage of this here's a TokenType for seperating words by camel case:
+Many of these types will be trivial, here's an example for matching words by camel case:
 
 ````Swift
 struct CamelCaseToken: TokenType {
 
-    // number token can include any letter character
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
+    // start of token is identified by an uppercase letter
+    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
         return CharacterSet.uppercaseLetters.contains(scalar)
     }
 
-    // numbers must start with an uppercase letter
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard CharacterSet.uppercaseLetters.contains(scalar) else {
-            return nil
-        }
-        return CamelCaseToken()
+    // all remaining characters must be lowercase letters
+    func canInclude(scalar: UnicodeScalar) -> Bool {
+        return CharacterSet.lowercaseLetters.contains(scalar)
     }
 }
 ````
 
+Using your own `TokenType` objects is similar to using a character sets:
+
 ````Swift
 let words = "HelloWorld".tokens(from: CamelCaseToken.tokenizer)
-// words: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
 // words.count -> 2
 // words[0].text -> "Hello"
 // words[1].text -> "World"
 ````
 
-A more interesting example is a TokenType that allows matching of emoji characters.
+## Roadmap
+- [ ] Include detailed examples and documentation
+- [ ] Ability to skip/ignore characters within match
+- [ ] Include criteria for matching end-of-token
+- [ ] Performance testing / benchmarking against Scanner
+- [ ] Make project logo ಠ_ಠ
 
-Because a single emoji character can be made of multiple unicode scalars, Swift doesn't have a corresponding character set.
+## Requirements
 
-````Swift
-struct EmojiToken: TokenType {
+- Swift 3.0
 
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
-        return EmojiToken.isEmojiScalar(scalar)
-    }
+## Author
 
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard EmojiToken.isEmojiScalar(scalar) else {
-            return nil
-        }
-        return EmojiToken()
-    }
+Made with :heart: by [@permakittens](http://twitter.com/permakittens)
 
-    static func isEmojiScalar(_ scalar: UnicodeScalar) -> Bool {
+## Contributing
 
-        switch scalar {
-        case "\u{200D}",                 // Zero-width joiner
-        "\u{0001F600}"..."\u{0001F64F}", // Emoticons
-        "\u{0001F300}"..."\u{0001F5FF}", // Misc Symbols and Pictographs
-        "\u{0001F680}"..."\u{0001F6FF}", // Transport and Map
-        "\u{00002600}"..."\u{000026FF}", // Misc symbols
-        "\u{00002700}"..."\u{000027BF}", // Dingbats
-        "\u{0000FE00}"..."\u{0000FE0F}", // Variation Selectors
-        "\u{0001F900}"..."\u{0001F9FF}", // Various (e.g. 🤖)
-        "\u{0001F1E6}"..."\u{0001F1FF}": // regional flags
-            return true
+Feedback, or contributions for bug fixing or improvements are welcome. Feel free to submit a pull request or open an issue.
 
-        default:
-            return false
-        }
-    }
-}
-````
+## License
 
-It's also possible to use an `enum` to create a more complex `TokenType` that has different internal states, perhaps to bundle multiple types of token into a single type.
-
-````Swift
-enum MixedToken: TokenType {
-
-    case word
-    case number
-    case emoji
-
-    init() {
-        self = .word
-    }
-
-    static let wordToken = WordToken()
-    static let numberToken = NumberToken()
-    static let emojiToken = EmojiToken()
-
-    func allows(scalar: UnicodeScalar) -> Bool {
-        switch self {
-        case .word: return MixedToken.wordToken.allows(scalar: scalar)
-        case .number: return MixedToken.numberToken.allows(scalar: scalar)
-        case .emoji: return MixedToken.emojiToken.allows(scalar: scalar)
-        }
-    }
-
-    func tokenizer(startingWith scalar: UnicodeScalar) -> TokenType? {
-        if let _ = MixedToken.wordToken.tokenizer(startingWith: scalar) {
-            return MixedToken.word
-        }
-        else if let _ = MixedToken.numberToken.tokenizer(startingWith: scalar) {
-            return MixedToken.number
-        }
-        else if let _ = MixedToken.emojiToken.tokenizer(startingWith: scalar) {
-            return MixedToken.emoji
-        }
-        return nil
-    }
-}
-````
-
-By defining a `typealias` for this type, you can call a convenience method `tokens()` that uses the derived type from the type alias so that the tokenType is your custom type instead of the generic `TokenType`.
-
-````Swift
-typealias MixedMatch = (tokenType: MixedToken, text: String, range: Range<String.Index>)
-
-let matches: [MixedMatch] = "123👩‍👩‍👦‍👦Hello world👶 again👶🏿 45.67".tokens()
-
-matches.forEach({ match in
-    switch (match.token, match.text) {
-    case (.word, let word): print("word:", word)
-    case (.number, let number): print("number:", number)
-    case (.emoji, let emoji): print("emoji:", emoji)
-    }
-})
-// prints:
-// number: 123
-// emoji: 👩‍👩‍👦‍👦
-// word: Hello
-// word: world
-// emoji: 👶
-// word: again
-// emoji: 👶🏿
-// number: 45.67
-
-````
+MIT

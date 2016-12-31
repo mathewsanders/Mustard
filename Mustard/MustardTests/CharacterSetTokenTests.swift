@@ -24,7 +24,7 @@ class CharacterSetTokenTests: XCTestCase {
                 
         let tokens = "123Hello world&^45.67".tokens(from: .decimalDigits, .letters)
         
-        XCTAssert(tokens.count == 5, "Unexpected number of characterset tokens")
+        XCTAssert(tokens.count == 5, "Unexpected number of characterset tokens [\(tokens.count)]")
         
         XCTAssert(tokens[0].tokenType == CharacterSet.decimalDigits)
         XCTAssert(tokens[0].text == "123")

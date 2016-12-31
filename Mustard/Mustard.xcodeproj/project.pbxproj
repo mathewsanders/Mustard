@@ -92,9 +92,9 @@
 		AFC3B92A1E16E379005B4A99 /* MustardTests */ = {
 			isa = PBXGroup;
 			children = (
+				AFC3B93B1E16EB08005B4A99 /* CustomTokenTests.swift */,
 				AFC3B92B1E16E379005B4A99 /* CharacterSetTokenTests.swift */,
 				AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */,
-				AFC3B93B1E16EB08005B4A99 /* CustomTokenTests.swift */,
 				AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */,
 				AFC3B92D1E16E379005B4A99 /* Info.plist */,
 			);

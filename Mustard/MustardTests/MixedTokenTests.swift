@@ -16,35 +16,41 @@ enum MixedToken: TokenType {
     case word
     case number
     case emoji
+    case none
     
     init() {
-        self = .word
+        self = .none
     }
     
     static let wordToken = WordToken()
     static let numberToken = NumberToken()
     static let emojiToken = EmojiToken()
     
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
+    func canInclude(scalar: UnicodeScalar) -> Bool {
         switch self {
-        case .word: return MixedToken.wordToken.tokenCanInclude(scalar: scalar)
-        case .number: return MixedToken.numberToken.tokenCanInclude(scalar: scalar)
-        case .emoji: return MixedToken.emojiToken.tokenCanInclude(scalar: scalar)
+        case .word: return MixedToken.wordToken.canInclude(scalar: scalar)
+        case .number: return MixedToken.numberToken.canInclude(scalar: scalar)
+        case .emoji: return MixedToken.emojiToken.canInclude(scalar: scalar)
+        case .none:
+            print("returning false")
+            return false
         }
     }
     
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
+    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType? {
         
-        if let _ = MixedToken.wordToken.tokenType(startingWith: scalar) {
+        if let _ = MixedToken.wordToken.tokenType(withStartingScalar: scalar) {
             return MixedToken.word
         }
-        else if let _ = MixedToken.numberToken.tokenType(startingWith: scalar) {
+        else if let _ = MixedToken.numberToken.tokenType(withStartingScalar: scalar) {
             return MixedToken.number
         }
-        else if let _ = MixedToken.emojiToken.tokenType(startingWith: scalar) {
+        else if let _ = MixedToken.emojiToken.tokenType(withStartingScalar: scalar) {
             return MixedToken.emoji
         }
-        return nil
+        else {
+            return nil
+        }
     }
 }
 

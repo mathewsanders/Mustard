@@ -11,39 +11,54 @@ import Mustard
 
 struct NumberToken: TokenType {
     
-    static private let characters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
+    static private let numberCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
     
     // number token can include any character in 0...9 + '.'
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
-        return NumberToken.characters.contains(scalar)
+    func canInclude(scalar: UnicodeScalar) -> Bool {
+        return NumberToken.numberCharacters.contains(scalar)
     }
     
     // numbers must start with character 0...9
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard CharacterSet.decimalDigits.contains(scalar) else {
-            return nil
-        }
-        return NumberToken()
+    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
+        return CharacterSet.decimalDigits.contains(scalar)
     }
 }
 
 struct WordToken: TokenType {
     
-    // word token can include any character in a...z
-    func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
+    // word token can include any character in a...z + A...Z
+    func canInclude(scalar: UnicodeScalar) -> Bool {
         return CharacterSet.letters.contains(scalar)
     }
+}
+
+struct SpecialFormatToken: TokenType {
     
-    // word token must start with character a...z
-    func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard CharacterSet.letters.contains(scalar) else {
-            return nil
-        }
-        return WordToken()
+    private let internalCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-"))
+    
+    // can include any numbers, letters, and - character
+    func canInclude(scalar: UnicodeScalar) -> Bool {
+        return internalCharacters.contains(scalar)
+    }
+    
+    // must start with # 
+    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
+        return CharacterSet(charactersIn: "#").contains(scalar)
     }
 }
 
 class CustomTokenTests: XCTestCase {
+    
+    func testSpecialFormat() {
+        
+        let tokens = "Serial: #YF-1942-B 12/01/27 (Scanned)".tokens(from: SpecialFormatToken.tokenizer)
+        
+        XCTAssert(tokens.count == 1, "Unexpected number of tokens [\(tokens.count)]")
+        
+        XCTAssert(tokens[0].tokenType is SpecialFormatToken)
+        XCTAssert(tokens[0].text == "#YF-1942-B")
+        
+    }
     
     func testNumberToken() {
         
@@ -64,5 +79,4 @@ class CustomTokenTests: XCTestCase {
         XCTAssert(tokens[3].text == "45.67")
     }
 }
-
 

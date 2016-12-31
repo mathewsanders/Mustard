@@ -9,13 +9,8 @@
 import Foundation
 
 extension CharacterSet: TokenType {
-    public func tokenCanInclude(scalar: UnicodeScalar) -> Bool {
+    public func canInclude(scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
-    }
-    
-    public func tokenType(startingWith scalar: UnicodeScalar) -> TokenType? {
-        guard tokenCanInclude(scalar: scalar) else { return nil }
-        return self
     }
 }
 
@@ -32,4 +27,3 @@ public func ~= (option: CharacterSet, input: TokenType) -> Bool {
     }
     return false
 }
-
