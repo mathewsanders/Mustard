@@ -44,17 +44,13 @@ public extension String {
                 continue
             }
             
-            var currentPosition = startPosition
+            var currentPosition = text.unicodeScalars.index(after: startPosition)
             
             while currentPosition <= text.unicodeScalars.endIndex {
                 
-                let isStart = currentPosition == startPosition
-                let currentCharacter = text.unicodeScalars[currentPosition]
-                
                 if currentPosition < text.unicodeScalars.endIndex &&  // reached the last character
-                    tokenType.canInclude(scalar: currentCharacter)    // character can be included
-                    || isStart && tokenType.isRequiredToStart(with: currentCharacter) ?? false { // or special start requirement met
-                    
+                    tokenType.canInclude(scalar: text.unicodeScalars[currentPosition]) { // character can be included
+                
                     currentPosition = text.unicodeScalars.index(after: currentPosition)
                 }
                 else {
