@@ -42,23 +42,25 @@ or you can create your own Tokenizers by implementing the `TokenType` protocol.
 ````Swift
 public protocol TokenType {
 
-    // return if this scalar can be included as part of this token
-    func canInclude(scalar: UnicodeScalar) -> Bool
+    // check if token can start with a scalar
+    func canStart(with scalar: UnicodeScalar) -> Bool
 
-    // return nil if there are no specific requirements for starting the token
-    // otherwise return if this scalar is a valid start for this type of token
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool?
+    // check if token can append next scalar
+    func canAppend(next scalar: UnicodeScalar) -> Bool
+
+    // check if token can be completed based on next character
+    func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool
 
     // if this type of token can be started with this scalar, return a token to use
     // otherwise return nil
-    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType?
+    func token(startingWith scalar: UnicodeScalar) -> TokenType?
 
     // TokenType must be able to be created with this initializer
     init()
 }
 ````
 
-Many implementations of TokenType will be simple, a protocol extension includes default implementation of all functions except for `func canInclude(scalar: UnicodeScalar) -> Bool` so that trivial TokenTypes may only need this single method.
+Many implementations of TokenType will be simple, a protocol extension includes default implementation of all functions except for `func canAppend(next scalar: UnicodeScalar) -> Bool` so that trivial TokenTypes may only need this single method.
 
 ### Example: CamelCaseToken
 
@@ -66,12 +68,12 @@ Many implementations of TokenType will be simple, a protocol extension includes 
 struct CamelCaseToken: TokenType {
 
     // start of token is identified by an uppercase letter
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
+    func canStart(with scalar: UnicodeScalar) -> Bool
         return CharacterSet.uppercaseLetters.contains(scalar)
     }
 
     // all remaining characters must be lowercase letters
-    func canInclude(scalar: UnicodeScalar) -> Bool {
+    func canAppend(next scalar: UnicodeScalar) -> Bool
         return CharacterSet.lowercaseLetters.contains(scalar)
     }
 }
@@ -95,11 +97,11 @@ This is a good opportunity for creating a TokenType for matching sequences of sc
 ````Swift
 struct EmojiToken: TokenType {
 
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
+    func canStart(with scalar: UnicodeScalar) -> Bool {
         return EmojiToken.isEmojiScalar(scalar)
     }
 
-    func canInclude(scalar: UnicodeScalar) -> Bool {
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
         return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
     }
 
@@ -161,32 +163,32 @@ enum MixedToken: TokenType {
     case none
 
     init() {
-        self = .other
+        self = .none
     }
 
     static let wordToken = WordToken()
     static let numberToken = NumberToken()
     static let emojiToken = EmojiToken()
 
-    func canInclude(scalar: UnicodeScalar) -> Bool {
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
         switch self {
-        case .word: return MixedToken.wordToken.canInclude(scalar: scalar)
-        case .number: return MixedToken.numberToken.canInclude(scalar: scalar)
-        case .emoji: return MixedToken.emojiToken.canInclude(scalar: scalar)
+        case .word: return MixedToken.wordToken.canAppend(next: scalar)
+        case .number: return MixedToken.numberToken.canAppend(next: scalar)
+        case .emoji: return MixedToken.emojiToken.canAppend(next: scalar)
         case .none:
             return false
         }
     }
 
-    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType? {
+    func token(startingWith scalar: UnicodeScalar) -> TokenType? {
 
-        if let _ = MixedToken.wordToken.tokenType(withStartingScalar: scalar) {
+        if let _ = MixedToken.wordToken.token(startingWith: scalar) {
             return MixedToken.word
         }
-        else if let _ = MixedToken.numberToken.tokenType(withStartingScalar: scalar) {
+        else if let _ = MixedToken.numberToken.token(startingWith: scalar) {
             return MixedToken.number
         }
-        else if let _ = MixedToken.emojiToken.tokenType(withStartingScalar: scalar) {
+        else if let _ = MixedToken.emojiToken.token(startingWith: scalar) {
             return MixedToken.emoji
         }
         else {

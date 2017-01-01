@@ -12,11 +12,13 @@ public typealias Token = (tokenType: TokenType, text: String, range: Range<Strin
 
 public protocol TokenType {
     
+    // check if token can start with a scalar
     func canStart(with scalar: UnicodeScalar) -> Bool
     
-    // return if this scalar can be included as part of this token
+    // check if token can append next scalar
     func canAppend(next scalar: UnicodeScalar) -> Bool
     
+    // check if token can be completed based on next character
     func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool
     
     // if this type of token can be started with this scalar, return a token to use
