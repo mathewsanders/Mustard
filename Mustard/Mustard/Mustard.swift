@@ -39,37 +39,47 @@ public extension String {
             guard let token = tokenizers.lazy.flatMap({ $0.token(startingWith: text.unicodeScalars[startIndex]) }).first else {
                 // the character at this position doesn't meet criteria for any
                 // any tokens to start with, advance the start position by one and try again
-                
                 startIndex = text.unicodeScalars.index(after: startIndex)
                 continue
             }
             
-            var nextIndex = text.unicodeScalars.index(after: startIndex)
-            
-            while nextIndex <= text.unicodeScalars.endIndex {
+            var currentIndex = startIndex
+            while currentIndex < text.unicodeScalars.endIndex {
                 
+                let nextIndex = text.unicodeScalars.index(after: currentIndex)
                 let nextScalar = text.unicodeScalars[nextIndex]
                 
-                if nextIndex < text.unicodeScalars.endIndex && token.canAppend(next: nextScalar) {
-                
-                    nextIndex = text.unicodeScalars.index(after: nextIndex)
-                }
-                else {
+                if !token.canAppend(next: nextScalar) {
+                    // this token has matched as many scalars as it can
                     
-                    if token.canCompleteWhenNextScalar(is: nextScalar) {
+                    if token.canCompleteWhenNextScalar(is: nextScalar),
+                        let start = startIndex.samePosition(in: text),
+                        let next = nextIndex.samePosition(in: text) {
+                        // the token could be completed, so will add to matches
                         
-                        if let start = startIndex.samePosition(in: text),
-                            let next = nextIndex.samePosition(in: text) {
-                            
-                            matches.append((tokenType: token,
-                                            text: text[start..<next],
-                                            range: start..<next))
-                        }
+                        matches.append(
+                            (tokenType: token,
+                             text: text[start..<next],
+                             range: start..<next)
+                        )
                     }
+                    else {
+                        // token could not be completed
+                        print("-- token can't complete")
+                    }
+                    
+                    // advance the start index to the next index, 
+                    // and break out of the inner loop to grab a 
+                    // new token with the scalar at this index
+                    startIndex = nextIndex
                     break
                 }
+                else {
+                    // token can continue matching so expand one position
+                    // expand token one position
+                    currentIndex = text.unicodeScalars.index(after: currentIndex)
+                }
             }
-            startIndex = nextIndex
         }
         
         return matches
