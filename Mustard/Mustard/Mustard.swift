@@ -47,12 +47,18 @@ public extension String {
             while currentIndex < text.unicodeScalars.endIndex {
                 
                 let nextIndex = text.unicodeScalars.index(after: currentIndex)
-                let nextScalar = text.unicodeScalars[nextIndex]
+                let nextScalar = nextIndex == text.unicodeScalars.endIndex ? nil : text.unicodeScalars[nextIndex]
                 
-                if !token.canAppend(next: nextScalar) {
+                if let scalar = nextScalar, token.canTake(scalar) {
+                    // token can continue matching so expand one position
+                    // expand token one position
+                    currentIndex = text.unicodeScalars.index(after: currentIndex)
+                }
+                else {
                     // this token has matched as many scalars as it can
                     
-                    if token.canCompleteWhenNextScalar(is: nextScalar),
+                    if token.isComplete, token.isValid(whenNextScalarIs: nextScalar),
+                        
                         let start = startIndex.samePosition(in: text),
                         let next = nextIndex.samePosition(in: text) {
                         // the token could be completed, so will add to matches
@@ -71,13 +77,9 @@ public extension String {
                     // advance the start index to the next index, 
                     // and break out of the inner loop to grab a 
                     // new token with the scalar at this index
+                    token.prepareForReuse()
                     startIndex = nextIndex
                     continue nextToken
-                }
-                else {
-                    // token can continue matching so expand one position
-                    // expand token one position
-                    currentIndex = text.unicodeScalars.index(after: currentIndex)
                 }
             }
         }

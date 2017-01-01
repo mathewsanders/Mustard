@@ -19,15 +19,15 @@ struct NumberToken: TokenType {
     }
     
     // number token can include any character in 0...9 + '.'
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
+    func canTake(_ scalar: UnicodeScalar) -> Bool {
         return NumberToken.numberCharacters.contains(scalar)
     }
 }
 
 struct WordToken: TokenType {
-    
+
     // word token can include any character in a...z + A...Z
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
+    func canTake(_ scalar: UnicodeScalar) -> Bool {
         return CharacterSet.letters.contains(scalar)
     }
 }

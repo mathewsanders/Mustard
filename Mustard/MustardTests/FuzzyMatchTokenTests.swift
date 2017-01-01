@@ -30,7 +30,7 @@ class FuzzyLiteralMatch: TokenType {
         self.exclusions = exclusions
     }
     
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
+    func canTake(_ scalar: UnicodeScalar) -> Bool {
         
         guard position < target.unicodeScalars.endIndex else {
             // we've matched all of the target
@@ -67,19 +67,11 @@ class FuzzyLiteralMatch: TokenType {
         }
     }
     
-    func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool {
-        
-        if position == target.unicodeScalars.endIndex {
-            resetToken()
-            return true
-        }
-        else {
-            resetToken()
-            return false
-        }
+    var isComplete: Bool {
+        return position == target.unicodeScalars.endIndex
     }
     
-    private func resetToken() {
+    func prepareForReuse() {
         position = target.unicodeScalars.startIndex
     }
 }
@@ -93,7 +85,7 @@ class DateMatch: TokenType {
         position = template.unicodeScalars.startIndex
     }
     
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
+    func canTake(_ scalar: UnicodeScalar) -> Bool {
         
         guard position < template.unicodeScalars.endIndex else {
             // we've matched all of the template
@@ -112,19 +104,11 @@ class DateMatch: TokenType {
         }
     }
     
-    func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool {
-        
-        if position == template.unicodeScalars.endIndex {
-            resetToken()
-            return true
-        }
-        else {
-            resetToken()
-            return false
-        }
+    var isComplete: Bool {
+        return position == template.unicodeScalars.endIndex
     }
     
-    private func resetToken() {
+    func prepareForReuse() {
         position = template.unicodeScalars.startIndex
     }
 }

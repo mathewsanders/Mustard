@@ -12,12 +12,13 @@ import Mustard
 
 struct EmojiToken: TokenType {
     
-    
+    // (e.g. can't start with a ZWJ)
     func canStart(with scalar: UnicodeScalar) -> Bool {
         return EmojiToken.isEmojiScalar(scalar)
     }
     
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
+    // either in the known range for a emoji, or a ZWJ
+    func canTake(_ scalar: UnicodeScalar) -> Bool {
         return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
     }
     
