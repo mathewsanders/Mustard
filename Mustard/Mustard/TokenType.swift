@@ -13,7 +13,7 @@ import Foundation
 /// - tokenType: The instance of `TokenType` that matched the token.
 /// - text: The text that the token matched.
 /// - range: The range of the matched text in the original input.
-public typealias Token = (tokenType: TokenType, text: String, range: Range<String.Index>)
+public typealias Token = (tokenizer: TokenType, text: String, range: Range<String.Index>)
 
 public protocol TokenType {
     
@@ -66,9 +66,18 @@ public protocol TokenType {
     /// Initialize an empty instance.
     init()
     
+    /// Returns a new instance of a token that's a copy of the reciever.
+    ///
+    /// The object returned is set as the `tokenizer` element from a call to `tokens()`
+    /// If the type implements NSCopying protocol, the default implementation returns the result of
+    /// `copy(with: nil)`; otherwise, returns self.
+    var tokenizerForMatch: TokenType { get }
+    
 }
 
 public extension TokenType {
+    
+    typealias Token = (tokenizer: Self, text: String, range: Range<String.Index>)
     
     static var tokenizer: TokenType { return Self() }
     
@@ -93,4 +102,13 @@ public extension TokenType {
     }
     
     func prepareForReuse() {}
+    
+    var tokenizerForMatch: TokenType {
+        if let copying = self as? NSCopying, let aCopy = copying.copy(with: nil) as? TokenType {
+            return aCopy
+        }
+        else {
+            return self
+        }
+    }
 }

@@ -16,26 +16,52 @@ let messy = "123Hello world&^45.67"
 
 let tokens = messy.tokens(from: .decimalDigits, .letters)
 // tokens.count -> 5
-// tokens: [(tokenType: TokenType, text: String, range: Range<String.Index>)]
-// tokens is an array tuples that contains the TokenType that matched the token,
-// the actual text that was matched, and the range of the token in the original input.
+// tokens: [(tokenizer: TokenType, text: String, range: Range<String.Index>)]
+// tokens is an array of tuples which contains an instance of the TokenType that
+// matched the token, the actual text that was matched, and the range of the token
+// in the original input.
 //
 // second token..
-// tokens[1].tokenType -> CharacterSet.letters
+// tokens[1].tokenizer -> CharacterSet.letters
 // tokens[1].text -> "Hello"
 // tokens[1].range -> Range<String.Index>(3..<8)
 //
 // last token..
-// tokens[4].tokenType -> CharacterSet.decimalDigits
+// tokens[4].tokenizer -> CharacterSet.decimalDigits
 // tokens[4].text -> "67"
 // tokens[4].range -> Range<String.Index>(19..<21)
+````
+
+Creating by creating objects that implement the `TokenType` protocol we can create
+more advanced tokenizers. Here's some usage of a `DateToken` type that matches tokens
+with the a valid `MM/dd/yy` format, and also exposes a `date` property to access the
+corresponding `Date` object.
+
+````Swift
+import Mustard
+
+let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
+
+let tokens:[DateToken.Token] = messyInput.tokens()
+// tokens.count -> 2
+// ('99/99/99' is *not* matched by `DateToken`)
+//
+// first date
+// tokens[0].text -> "12/01/27"
+// tokens[0].tokenizer -> DateToken()
+// tokens[0].tokenizer.date -> Date(2027-12-01 05:00:00 +0000)
+//
+// last date
+// tokens[1].text -> "12/03/27"
+// tokens[1].tokenizer -> DateToken()
+// tokens[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
 ````
 
 ## More information
 
 - [TallyType protocol: implementing your own tokenizer](Documentation/1. TallyType protocol.md)
 - [Example: matching emoji](Documentation/2. Matching emoji.md)
-- [Example: expressive matching using enums](Documentation/3. Expressive matching using enums.md)
+- [Example: expressive matching](Documentation/3. Expressive matching.md)
 - [Example: literal and template matching using tokens with internal state](Documentation/4. Tokens with internal state.md)
 
 ## Todo (0.1)

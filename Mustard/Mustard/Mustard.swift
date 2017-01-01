@@ -11,11 +11,11 @@ import Foundation
 public extension String {
     
     /// Returns tokens matching a single `TokenType` implied by the generic signature
-    func tokens<T: TokenType>() -> [(tokenType: T, text: String, range: Range<String.Index>)] {
+    func tokens<T: TokenType>() -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
         
         return self.tokens(from: T()).flatMap({
-            if let tokenType = $0.tokenType as? T {
-                return (tokenType: tokenType, text: $0.text, range: $0.range)
+            if let tokenType = $0.tokenizer as? T {
+                return (tokenizer: tokenType, text: $0.text, range: $0.range)
             }
             else { return nil }
         })
@@ -64,7 +64,7 @@ public extension String {
                         // the token could be completed, so will add to matches
                         
                         matches.append(
-                            (tokenType: token,
+                            (tokenizer: token.tokenizerForMatch,
                              text: text[start..<next],
                              range: start..<next)
                         )

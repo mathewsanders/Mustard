@@ -87,10 +87,10 @@ class LiteralTokenTests: XCTestCase {
         
         XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(tokens[0].tokenType is LiteralToken)
+        XCTAssert(tokens[0].tokenizer is LiteralToken)
         XCTAssert(tokens[0].text == "cat")
         
-        XCTAssert(tokens[1].tokenType is LiteralToken)
+        XCTAssert(tokens[1].tokenizer is LiteralToken)
         XCTAssert(tokens[1].text == "duck")
         
         print(tokens.count)
