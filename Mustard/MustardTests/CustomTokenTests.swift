@@ -13,21 +13,21 @@ struct NumberToken: TokenType {
     
     static private let numberCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
     
-    // number token can include any character in 0...9 + '.'
-    func canInclude(scalar: UnicodeScalar) -> Bool {
-        return NumberToken.numberCharacters.contains(scalar)
+    // numbers must start with character 0...9
+    func canStart(with scalar: UnicodeScalar) -> Bool {
+        return CharacterSet.decimalDigits.contains(scalar)
     }
     
-    // numbers must start with character 0...9
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
-        return CharacterSet.decimalDigits.contains(scalar)
+    // number token can include any character in 0...9 + '.'
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
+        return NumberToken.numberCharacters.contains(scalar)
     }
 }
 
 struct WordToken: TokenType {
     
     // word token can include any character in a...z + A...Z
-    func canInclude(scalar: UnicodeScalar) -> Bool {
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
         return CharacterSet.letters.contains(scalar)
     }
 }
@@ -36,15 +36,15 @@ struct SpecialFormatToken: TokenType {
     
     private let internalCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-"))
     
-    // can include any numbers, letters, and - character
-    func canInclude(scalar: UnicodeScalar) -> Bool {
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
         return internalCharacters.contains(scalar)
     }
     
-    // must start with # 
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
-        return CharacterSet(charactersIn: "#").contains(scalar)
+    // must start with #
+    func canStart(with scalar: UnicodeScalar) -> Bool {
+        return scalar ==  "\u{23}" // NUMBER SIGN / #
     }
+    
 }
 
 class CustomTokenTests: XCTestCase {

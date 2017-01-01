@@ -9,7 +9,7 @@
 import Foundation
 
 extension CharacterSet: TokenType {
-    public func canInclude(scalar: UnicodeScalar) -> Bool {
+    public func canAppend(next scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
     }
 }

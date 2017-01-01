@@ -33,38 +33,43 @@ public extension String {
         let text = self
         var matches: [Token] = []
         
-        var startPosition = text.unicodeScalars.startIndex
-        while startPosition < text.unicodeScalars.endIndex {
+        var startIndex = text.unicodeScalars.startIndex
+        while startIndex < text.unicodeScalars.endIndex {
             
-            guard let tokenType = tokenizers.lazy.flatMap({ $0.tokenType(withStartingScalar: text.unicodeScalars[startPosition]) }).first else {
+            guard let token = tokenizers.lazy.flatMap({ $0.token(startingWith: text.unicodeScalars[startIndex]) }).first else {
                 // the character at this position doesn't meet criteria for any
                 // any tokens to start with, advance the start position by one and try again
                 
-                startPosition = text.unicodeScalars.index(after: startPosition)
+                startIndex = text.unicodeScalars.index(after: startIndex)
                 continue
             }
             
-            var currentPosition = text.unicodeScalars.index(after: startPosition)
+            var nextIndex = text.unicodeScalars.index(after: startIndex)
             
-            while currentPosition <= text.unicodeScalars.endIndex {
+            while nextIndex <= text.unicodeScalars.endIndex {
                 
-                if currentPosition < text.unicodeScalars.endIndex &&  // reached the last character
-                    tokenType.canInclude(scalar: text.unicodeScalars[currentPosition]) { // character can be included
+                let nextScalar = text.unicodeScalars[nextIndex]
                 
-                    currentPosition = text.unicodeScalars.index(after: currentPosition)
+                if nextIndex < text.unicodeScalars.endIndex && token.canAppend(next: nextScalar) {
+                
+                    nextIndex = text.unicodeScalars.index(after: nextIndex)
                 }
                 else {
-                    if let start = startPosition.samePosition(in: text),
-                        let end = currentPosition.samePosition(in: text) {
+                    
+                    if token.canCompleteWhenNextScalar(is: nextScalar) {
                         
-                        matches.append((tokenType: tokenType,
-                                        text: text[start..<end],
-                                        range: start..<end))
+                        if let start = startIndex.samePosition(in: text),
+                            let next = nextIndex.samePosition(in: text) {
+                            
+                            matches.append((tokenType: token,
+                                            text: text[start..<next],
+                                            range: start..<next))
+                        }
                     }
                     break
                 }
             }
-            startPosition = currentPosition
+            startIndex = nextIndex
         }
         
         return matches

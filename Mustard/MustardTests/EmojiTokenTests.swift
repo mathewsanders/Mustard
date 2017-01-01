@@ -12,11 +12,12 @@ import Mustard
 
 struct EmojiToken: TokenType {
     
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
+    
+    func canStart(with scalar: UnicodeScalar) -> Bool {
         return EmojiToken.isEmojiScalar(scalar)
     }
     
-    func canInclude(scalar: UnicodeScalar) -> Bool {
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
         return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
     }
     

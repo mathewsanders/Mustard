@@ -12,16 +12,16 @@ public typealias Token = (tokenType: TokenType, text: String, range: Range<Strin
 
 public protocol TokenType {
     
-    // return if this scalar can be included as part of this token
-    func canInclude(scalar: UnicodeScalar) -> Bool
+    func canStart(with scalar: UnicodeScalar) -> Bool
     
-    // return nil if there are no specific requirements for starting the token
-    // otherwise return if this scalar is a valid start for this type of token
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool?
+    // return if this scalar can be included as part of this token
+    func canAppend(next scalar: UnicodeScalar) -> Bool
+    
+    func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool
     
     // if this type of token can be started with this scalar, return a token to use
     // otherwise return nil
-    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType?
+    func token(startingWith scalar: UnicodeScalar) -> TokenType?
     
     // TokenType must be able to be created with this initializer
     init()
@@ -31,19 +31,15 @@ public extension TokenType {
     
     static var tokenizer: TokenType { return Self() }
     
-    func isRequiredToStart(with scalar: UnicodeScalar) -> Bool? {
-        return nil
+    func canStart(with scalar: UnicodeScalar) -> Bool {
+        return canAppend(next: scalar)
     }
     
-    func tokenType(withStartingScalar scalar: UnicodeScalar) -> TokenType? {
-        if let result = isRequiredToStart(with: scalar) {
-            return result ? self : nil
-        }
-        else if canInclude(scalar: scalar) {
-            return self
-        }
-        else {
-            return nil
-        }
+    func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool {
+        return true
+    }
+    
+    func token(startingWith scalar: UnicodeScalar) -> TokenType? {
+        return canStart(with: scalar) ? self : nil
     }
 }
