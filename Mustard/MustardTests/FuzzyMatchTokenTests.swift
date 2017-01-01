@@ -9,6 +9,11 @@
 import XCTest
 import Mustard
 
+infix operator ~=
+func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
+    return option.contains(input)
+}
+
 class FuzzyLiteralMatch: TokenType {
     
     let target: String
@@ -32,22 +37,31 @@ class FuzzyLiteralMatch: TokenType {
             return false
         }
         
-        if scalar == target.unicodeScalars[position] {
-            // scalar matches the next target scalar!
+        let targetScalar = target.unicodeScalars[position]
+        
+        switch (scalar, targetScalar) {
+        case (_, _)
+                where scalar == targetScalar,
+             (CharacterSet.lowercaseLetters, CharacterSet.uppercaseLetters)
+                where scalar.value - targetScalar.value == 32,
+             (CharacterSet.uppercaseLetters, CharacterSet.lowercaseLetters)
+                where targetScalar.value - scalar.value == 32:
+            // scalar and target scalar are either an exact match,
+            // or equivilant upper/lowercase pair
             // advance the position and return true
             position = target.unicodeScalars.index(after: position)
             return true
-        }
         
-        else if position > target.unicodeScalars.startIndex && exclusions.contains(scalar) {
-            // if: 
+        case (exclusions, _)
+            where position > target.unicodeScalars.startIndex:
+            // if:
             // - we've matched at least one of the target scalars; and
             // - this scalar matches a scalar that's can be ignored
             // then:
             // - return true without advancing the position
             return true
-        }
-        else {
+            
+        default:
             // scalar isn't the next target scalar, or a scalar that can be ignored
             return false
         }
@@ -70,20 +84,69 @@ class FuzzyLiteralMatch: TokenType {
     }
 }
 
+class DateMatch: TokenType {
+    
+    let template = "00/00/00"
+    var position: String.UnicodeScalarIndex
+    
+    required init() {
+        position = template.unicodeScalars.startIndex
+    }
+    
+    func canAppend(next scalar: UnicodeScalar) -> Bool {
+        
+        guard position < template.unicodeScalars.endIndex else {
+            // we've matched all of the template
+            return false
+        }
+        
+        switch (template.unicodeScalars[position], scalar) {
+        case ("\u{0030}", CharacterSet.decimalDigits), // match with a decimal digit
+             ("\u{002F}", "\u{002F}"):                 // match with the '/' character
+            
+            position = template.unicodeScalars.index(after: position)
+            return true
+            
+        default:
+            return false
+        }
+    }
+    
+    func canCompleteWhenNextScalar(is scalar: UnicodeScalar) -> Bool {
+        
+        if position == template.unicodeScalars.endIndex {
+            resetToken()
+            return true
+        }
+        else {
+            resetToken()
+            return false
+        }
+    }
+    
+    private func resetToken() {
+        position = template.unicodeScalars.startIndex
+    }
+}
+
 class FuzzyMatchTokenTests: XCTestCase {
     
     func testSpecialFormat() {
         
-        let messyInput = "Serial: #YF 1942-B 12/01/27 (Scanned)"
+        let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned)"
+        
         let fuzzyTokenzier = FuzzyLiteralMatch(target: "#YF1942B",
                                                ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
         
-        let tokens = messyInput.tokens(from: fuzzyTokenzier)
+        let tokens = messyInput.tokens(from: fuzzyTokenzier, DateMatch.tokenizer)
         
-        XCTAssert(tokens.count == 1, "Unexpected number of tokens [\(tokens.count)]")
+        XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         
         XCTAssert(tokens[0].tokenType is FuzzyLiteralMatch)
-        XCTAssert(tokens[0].text == "#YF 1942-B")
+        XCTAssert(tokens[0].text == "#YF 1942-b")
+        
+        XCTAssert(tokens[1].tokenType is DateMatch)
+        XCTAssert(tokens[1].text == "12/01/27")
         
     }
 }
