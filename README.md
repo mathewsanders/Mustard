@@ -1,13 +1,13 @@
 # Mustard
 
-Mustard is a Swift library for tokenizing strings when separating a string by whitespace doesn't cut it.
+Mustard is a Swift library for tokenizing strings when splitting by whitespace doesn't cut it.
 
 ## Quick start
 
 Mustard extends `String` with the method `tokens(from: CharacterSet...)` which allows you to pass in one
 or more character sets to use criteria to find tokens.
 
-Here's an example that extracts any sequence of characters that are made up either from the digits 0-9, or by letters.
+Here's an example that extracts any sequence of characters that are either letters or digits:
 
 ````Swift
 import Mustard
