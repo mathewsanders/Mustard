@@ -34,13 +34,13 @@ public extension String {
         var matches: [Token] = []
         
         var startIndex = text.unicodeScalars.startIndex
-        while startIndex < text.unicodeScalars.endIndex {
+        nextToken: while startIndex < text.unicodeScalars.endIndex {
             
             guard let token = tokenizers.lazy.flatMap({ $0.token(startingWith: text.unicodeScalars[startIndex]) }).first else {
                 // the character at this position doesn't meet criteria for any
                 // any tokens to start with, advance the start position by one and try again
                 startIndex = text.unicodeScalars.index(after: startIndex)
-                continue
+                continue nextToken
             }
             
             var currentIndex = startIndex
@@ -72,7 +72,7 @@ public extension String {
                     // and break out of the inner loop to grab a 
                     // new token with the scalar at this index
                     startIndex = nextIndex
-                    break
+                    continue nextToken
                 }
                 else {
                     // token can continue matching so expand one position
