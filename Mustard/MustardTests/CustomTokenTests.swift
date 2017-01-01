@@ -32,33 +32,7 @@ struct WordToken: TokenType {
     }
 }
 
-struct SpecialFormatToken: TokenType {
-    
-    private let internalCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-"))
-    
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
-        return internalCharacters.contains(scalar)
-    }
-    
-    // must start with #
-    func canStart(with scalar: UnicodeScalar) -> Bool {
-        return scalar ==  "\u{23}" // NUMBER SIGN / #
-    }
-    
-}
-
 class CustomTokenTests: XCTestCase {
-    
-    func testSpecialFormat() {
-        
-        let tokens = "Serial: #YF-1942-B 12/01/27 (Scanned)".tokens(from: SpecialFormatToken.tokenizer)
-        
-        XCTAssert(tokens.count == 1, "Unexpected number of tokens [\(tokens.count)]")
-        
-        XCTAssert(tokens[0].tokenType is SpecialFormatToken)
-        XCTAssert(tokens[0].text == "#YF-1942-B")
-        
-    }
     
     func testNumberToken() {
         

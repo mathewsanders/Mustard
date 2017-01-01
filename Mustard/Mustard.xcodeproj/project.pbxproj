@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF51939A1E188BCD003711E7 /* FuzzyMatchTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */; };
 		AF5DE7641E16EBD8007E2D49 /* EmojiTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */; };
 		AF5DE7661E16F71D007E2D49 /* MixedTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */; };
 		AF77D0361E18336D007287DC /* LiteralTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF77D0351E18336D007287DC /* LiteralTokenTests.swift */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuzzyMatchTokenTests.swift; sourceTree = "<group>"; };
 		AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiTokenTests.swift; sourceTree = "<group>"; };
 		AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixedTokenTests.swift; sourceTree = "<group>"; };
 		AF77D0351E18336D007287DC /* LiteralTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiteralTokenTests.swift; sourceTree = "<group>"; };
@@ -97,11 +99,12 @@
 		AFC3B92A1E16E379005B4A99 /* MustardTests */ = {
 			isa = PBXGroup;
 			children = (
-				AFC3B93B1E16EB08005B4A99 /* CustomTokenTests.swift */,
 				AFC3B92B1E16E379005B4A99 /* CharacterSetTokenTests.swift */,
+				AFC3B93B1E16EB08005B4A99 /* CustomTokenTests.swift */,
 				AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */,
 				AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */,
 				AF77D0351E18336D007287DC /* LiteralTokenTests.swift */,
+				AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */,
 				AFC3B92D1E16E379005B4A99 /* Info.plist */,
 			);
 			path = MustardTests;
@@ -232,6 +235,7 @@
 			files = (
 				AFC3B93C1E16EB08005B4A99 /* CustomTokenTests.swift in Sources */,
 				AF77D0361E18336D007287DC /* LiteralTokenTests.swift in Sources */,
+				AF51939A1E188BCD003711E7 /* FuzzyMatchTokenTests.swift in Sources */,
 				AFC3B92C1E16E379005B4A99 /* CharacterSetTokenTests.swift in Sources */,
 				AF5DE7641E16EBD8007E2D49 /* EmojiTokenTests.swift in Sources */,
 				AF5DE7661E16F71D007E2D49 /* MixedTokenTests.swift in Sources */,

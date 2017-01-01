@@ -58,6 +58,7 @@ extension String {
     }
 }
 
+
 class LiteralTokenTests: XCTestCase {
     
     func testGetCatAndDuck() {
