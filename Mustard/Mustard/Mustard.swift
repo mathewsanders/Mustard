@@ -36,10 +36,9 @@ public extension String {
         var startIndex = text.unicodeScalars.startIndex
         nextCharacter: while startIndex < text.unicodeScalars.endIndex {
             
-            let startChar = text.unicodeScalars[startIndex]
             let validTokenizers = tokenizers.flatMap({ tokenizer -> TokenType? in
                 tokenizer.prepareForReuse()
-                return tokenizer.token(startingWith: startChar)
+                return tokenizer.token(startingWith: text.unicodeScalars[startIndex])
             })
             
             var tokenizerIndex = validTokenizers.startIndex
@@ -54,32 +53,29 @@ public extension String {
                     let nextScalar = nextIndex == text.unicodeScalars.endIndex ? nil : text.unicodeScalars[nextIndex]
                     
                     if let scalar = nextScalar, token.canTake(scalar) {
-                        // token can continue matching so expand one position
-                        // expand token one position
+                        // token can continue matching so:
+                        // - expand token one position
                         currentIndex = text.unicodeScalars.index(after: currentIndex)
                     }
                     else if token.isComplete, token.isValid(whenNextScalarIs: nextScalar),
-                            
                         let start = startIndex.samePosition(in: text),
                         let next = nextIndex.samePosition(in: text) {
-                        // the token could be completed, so will add to matches
+                        // the token is valid to be added to matches so:
+                        // - jump start index forward to next index; and
+                        // - start nextCharacter loop with updated start index
                         
                         matches.append(
                             (tokenizer: token.tokenizerForMatch,
                              text: text[start..<next],
-                             range: start..<next)
-                        )
+                             range: start..<next))
                         
-                        // advance the start index to the next index,
-                        // and break out of the inner loop to grab a
-                        // new token with the scalar at this index
                         startIndex = nextIndex
                         continue nextCharacter
-                        
                     }
                     else {
-                        // token could not be completed
-                        // advance the tokenizer index
+                        // token could not be added to matches so:
+                        // - advance the tokenizer index by one place
+                        // - start nextTokenizer loop with updated tokenizer index
                         tokenizerIndex = validTokenizers.index(after: tokenizerIndex)
                         continue nextTokenizer
                     }
