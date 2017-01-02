@@ -1,33 +1,16 @@
 # TokenizerType protocol: implementing your own tokenizer
 
-You can create your own tokenizers by implementing the `TokenizerType` protocol.
+You can create your own tokenizers by implementing the [`TokenizerType`](/Mustard/Mustard/TokenizerType.swift) protocol.
+
+Default implementations are provided for all methods except for `tokenCanTake(_:)` which means many implementations may be trivial.
+
+Here's a slimmed down view of the protocol (see [`TokenizerType.swift`](/Mustard/Mustard/TokenizerType.swift) for full documentation).
 
 ````Swift
-/// Token is a typelias for a tuple with the following named elements:
-///
-/// - tokenizer: An instance of `TokenizerType` that matched the token.
-/// - text: A substring that the tokenizer matched in the original string.
-/// - range: The range of the matched text in the original string.
-public typealias Token = (tokenizer: TokenizerType, text: String, range: Range<String.Index>)
 
 public protocol TokenizerType {
 
-    /// Returns an instance of a tokenizer that starts with the given scalar,
-    /// or `nil` if this type can't start with this scalar.
-    ///
-    /// The default implementation of this method returns `self` if `tokenCanStart(with:)` returns true;
-    /// otherwise, nil.
-    func token(startingWith scalar: UnicodeScalar) -> TokenizerType?
-
-    /// Checks if tokens of this type can start with the given scalar.
-    ///
-    /// The default implementation of this method is an alias for `tokenCanTake(_:)`.
-    /// Provide an alternate implementation if tokens have special starting criteria.
-    ///
-    /// - Parameter scalar: The scalar the token could start with.
-    ///
-    /// - Returns: `true` if the token can start with this scalar; otherwise, false.
-    func tokenCanStart(with scalar: UnicodeScalar) -> Bool
+    /* required methods  */
 
     /// Checks if tokens can include this scalar as part of a token.
     ///
@@ -39,50 +22,32 @@ public protocol TokenizerType {
     /// - Returns: `true` if the token can take this this scalar; otherwise, false.
     func tokenCanTake(_ scalar: UnicodeScalar) -> Bool
 
-    /// Returns a boolean value if the token is considered complete.
-    ///
-    /// The default implementation returns `true`.
-    ///
-    /// Provide an alternate implementation if tokens have some internal criteria that need to be
-    /// satisfied before a token is complete.
-    var tokenIsComplete: Bool { get }
-
-    /// Checks if a complete token should be discarded given the context of the first scalar following this token.
-    ///
-    /// The default implementation of this method performs always returns `false`.
-    ///
-    /// Provide an alternate implementation to return `true` in situations where a token can not be followed
-    /// by certain scalars.
-    ///
-    /// - Parameter scalar: The first scalar following this token, or `nil` if the tokenizer has
-    /// matched a token that reaches the end of the text.
-    ///
-    /// - Returns: `true` if the token is invalid with the following scalar; otherwise, false.
-    func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool
-
-    /// Ask the tokenizer to prepare itself to start matching a new series of scalars.
-    ///
-    /// The default implementation of this method does nothing.
-    ///
-    /// Provide an alternate implementation if the tokenizer maintains an internal state that updates based on calls to
-    /// `tokenCanTake(_:)`
-    func prepareForReuse()
-
-    /// Initialize an empty instance of the tokenizer.
+    // structs get this for free if any properties have default values
     init()
 
-    /// Returns an instance of the tokenizer that will be used as the `tokenizer` element in the `Token` tuple.
-    ///
-    /// If the tokenizer implements `NSCopying` protocol, the default implementation returns the result of
-    /// `copy(with: nil)`; otherwise, returns `self` which is suitable for structs.
-    ///
-    /// Provide an alternate implementation if the tokenizer is a reference type that does not implement `NSCopying`.
+    /* default implementations provided  */
+
+    // default implementation returns self if `tokenCanStart(with:)` returns true, otherwise nil
+    func token(startingWith scalar: UnicodeScalar) -> TokenizerType?
+
+    // default implementation returns result of `tokenCanTake(_:)`
+    func tokenCanStart(with scalar: UnicodeScalar) -> Bool
+
+    // default implementation returns `true`
+    var tokenIsComplete: Bool { get }
+
+    // default implementation returns `false`
+    func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool
+
+    // default implementation does nothing
+    func prepareForReuse()
+
+    // default implementation returns result of `copy(with: nil)` if the type implements `NSCopying`
+    // otherwise returns `self` (which is suitable for any value types)
     var tokenizerForMatch: TokenizerType { get }
 }
 
 ````
-
-Default implementations are provided for all methods except for `tokenCanTake(_:)` which means many implementations may be trivial.
 
 As an example, here's the extension that Mustard uses to allow any `CharacterSet` to act as a tokenizer.
 
@@ -124,3 +89,5 @@ let words = "HelloWorld".tokens(matchedWith: CamelCaseTokenizer.defaultTokenizer
 // words[0].text -> "Hello"
 // words[1].text -> "World"
 ````
+
+For more complex examples of implementing TokenizerType, see examples for [EmojiTokenizer](Matching emoji.md), [LiteralTokenizer](Literal tokenizer.md), [DateTokenizer](Template tokenizer.md), and [unit tests](/Mustard/MustardTests).

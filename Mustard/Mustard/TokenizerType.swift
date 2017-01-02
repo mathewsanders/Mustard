@@ -22,7 +22,7 @@
 
 import Foundation
 
-/// Token is a typelias for a tuple with the following named elements:
+/// Token is a typealias for a tuple with the following named elements:
 /// 
 /// - tokenizer: An instance of `TokenizerType` that matched the token.
 /// - text: A substring that the tokenizer matched in the original string.
@@ -101,7 +101,7 @@ public protocol TokenizerType {
 
 public extension TokenizerType {
     
-    /// Token is a typelias for a tuple with the following named elements:
+    /// Token is a typealias for a tuple with the following named elements:
     ///
     /// - tokenizer: An instance of `Self` that matched the token.
     /// - text: A substring that the tokenizer matched in the original string.
