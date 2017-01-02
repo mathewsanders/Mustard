@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AF51939A1E188BCD003711E7 /* FuzzyMatchTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */; };
+		AF51939C1E19E464003711E7 /* FallbackTokenizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */; };
 		AF5DE7641E16EBD8007E2D49 /* EmojiTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */; };
 		AF5DE7661E16F71D007E2D49 /* MixedTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */; };
 		AF77D0361E18336D007287DC /* LiteralTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF77D0351E18336D007287DC /* LiteralTokenTests.swift */; };
@@ -32,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuzzyMatchTokenTests.swift; sourceTree = "<group>"; };
+		AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FallbackTokenizerTests.swift; sourceTree = "<group>"; };
 		AF5DE7631E16EBD8007E2D49 /* EmojiTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiTokenTests.swift; sourceTree = "<group>"; };
 		AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixedTokenTests.swift; sourceTree = "<group>"; };
 		AF77D0351E18336D007287DC /* LiteralTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiteralTokenTests.swift; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 				AF5DE7651E16F71D007E2D49 /* MixedTokenTests.swift */,
 				AF77D0351E18336D007287DC /* LiteralTokenTests.swift */,
 				AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */,
+				AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */,
 				AFC3B92D1E16E379005B4A99 /* Info.plist */,
 			);
 			path = MustardTests;
@@ -238,6 +241,7 @@
 				AF51939A1E188BCD003711E7 /* FuzzyMatchTokenTests.swift in Sources */,
 				AFC3B92C1E16E379005B4A99 /* CharacterSetTokenTests.swift in Sources */,
 				AF5DE7641E16EBD8007E2D49 /* EmojiTokenTests.swift in Sources */,
+				AF51939C1E19E464003711E7 /* FallbackTokenizerTests.swift in Sources */,
 				AF5DE7661E16F71D007E2D49 /* MixedTokenTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

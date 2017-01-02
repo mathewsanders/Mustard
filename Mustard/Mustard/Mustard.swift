@@ -34,31 +34,32 @@ public extension String {
         var matches: [Token] = []
         
         var startIndex = text.unicodeScalars.startIndex
-        nextToken: while startIndex < text.unicodeScalars.endIndex {
+        nextCharacter: while startIndex < text.unicodeScalars.endIndex {
             
-            guard let token = tokenizers.lazy.flatMap({ $0.token(startingWith: text.unicodeScalars[startIndex]) }).first else {
-                // the character at this position doesn't meet criteria for any
-                // any tokens to start with, advance the start position by one and try again
-                startIndex = text.unicodeScalars.index(after: startIndex)
-                continue nextToken
-            }
+            let startChar = text.unicodeScalars[startIndex]
+            let validTokenizers = tokenizers.flatMap({ tokenizer -> TokenType? in
+                tokenizer.prepareForReuse()
+                return tokenizer.token(startingWith: startChar)
+            })
             
-            var currentIndex = startIndex
-            while currentIndex < text.unicodeScalars.endIndex {
+            var tokenizerIndex = validTokenizers.startIndex
+            nextTokenizer: while tokenizerIndex < validTokenizers.endIndex {
                 
-                let nextIndex = text.unicodeScalars.index(after: currentIndex)
-                let nextScalar = nextIndex == text.unicodeScalars.endIndex ? nil : text.unicodeScalars[nextIndex]
+                let token = validTokenizers[tokenizerIndex]
                 
-                if let scalar = nextScalar, token.canTake(scalar) {
-                    // token can continue matching so expand one position
-                    // expand token one position
-                    currentIndex = text.unicodeScalars.index(after: currentIndex)
-                }
-                else {
-                    // this token has matched as many scalars as it can
+                var currentIndex = startIndex
+                while currentIndex < text.unicodeScalars.endIndex {
                     
-                    if token.isComplete, token.isValid(whenNextScalarIs: nextScalar),
-                        
+                    let nextIndex = text.unicodeScalars.index(after: currentIndex)
+                    let nextScalar = nextIndex == text.unicodeScalars.endIndex ? nil : text.unicodeScalars[nextIndex]
+                    
+                    if let scalar = nextScalar, token.canTake(scalar) {
+                        // token can continue matching so expand one position
+                        // expand token one position
+                        currentIndex = text.unicodeScalars.index(after: currentIndex)
+                    }
+                    else if token.isComplete, token.isValid(whenNextScalarIs: nextScalar),
+                            
                         let start = startIndex.samePosition(in: text),
                         let next = nextIndex.samePosition(in: text) {
                         // the token could be completed, so will add to matches
@@ -68,20 +69,26 @@ public extension String {
                              text: text[start..<next],
                              range: start..<next)
                         )
+                        
+                        // advance the start index to the next index,
+                        // and break out of the inner loop to grab a
+                        // new token with the scalar at this index
+                        startIndex = nextIndex
+                        continue nextCharacter
+                        
                     }
                     else {
                         // token could not be completed
-                        print("-- token can't complete")
+                        // advance the tokenizer index
+                        tokenizerIndex = validTokenizers.index(after: tokenizerIndex)
+                        continue nextTokenizer
                     }
-                    
-                    // advance the start index to the next index, 
-                    // and break out of the inner loop to grab a 
-                    // new token with the scalar at this index
-                    token.prepareForReuse()
-                    startIndex = nextIndex
-                    continue nextToken
                 }
             }
+            
+            // the character at this position doesn't meet criteria for any
+            // any tokens to start with, advance the start position by one and try again
+            startIndex = text.unicodeScalars.index(after: startIndex)
         }
         
         return matches

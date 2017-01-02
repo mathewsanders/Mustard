@@ -54,8 +54,9 @@ class LiteralToken: TokenType {
     // if we've matched the token completely, it should be invalid if the next scalar 
     // matches a letter, this means that literal match of "cat" will not match "catastrophe"
     func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool {
+        
         if let next = scalar {
-            return !CharacterSet.letters.contains(next)
+            return CharacterSet.letters.contains(next)
         }
         else {
             return false
@@ -70,7 +71,6 @@ class LiteralToken: TokenType {
 }
 
 extension String {
-    
     // a convenience to allow us to use `"cat".literalToken` instead of `LiteralToken("cat")`
     var literalToken: LiteralToken {
         return LiteralToken(target: self)
@@ -93,10 +93,5 @@ class LiteralTokenTests: XCTestCase {
         XCTAssert(tokens[1].tokenizer is LiteralToken)
         XCTAssert(tokens[1].text == "duck")
         
-        print(tokens.count)
-        print(input)
-        for token in tokens {
-            print("-", "'\(token.text)'")
-        }
     }
 }

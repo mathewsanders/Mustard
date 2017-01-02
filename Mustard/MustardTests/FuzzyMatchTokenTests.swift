@@ -164,17 +164,10 @@ class FuzzyMatchTokenTests: XCTestCase {
     func testSpecialFormat() {
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        
         let fuzzyTokenzier = FuzzyLiteralMatch(target: "#YF1942B",
                                                ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
         
         let tokens = messyInput.tokens(from: fuzzyTokenzier, DateToken.tokenizer)
-        
-        for token in tokens {
-            if let tokenier = token.tokenizer as? DateToken {
-                print(" - token.date: '\(tokenier.date)'")
-            }
-        }
         
         XCTAssert(tokens.count == 3, "Unexpected number of tokens [\(tokens.count)]")
         
@@ -183,18 +176,20 @@ class FuzzyMatchTokenTests: XCTestCase {
         
         XCTAssert(tokens[1].tokenizer is DateToken)
         XCTAssert(tokens[1].text == "12/01/27")
-        
     }
     
     func testDateMatches() {
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        
         let tokens: [DateToken.Token] = messyInput.tokens()
         
-        for token in tokens {
-            print(" - token.date: '\(token.tokenizer.date)'")
-        }
+        XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
+        
+        XCTAssert(tokens[0].text == "12/01/27")
+        XCTAssert(tokens[0].tokenizer.date == DateToken.dateFormatter.date(from: tokens[0].text))
+        
+        XCTAssert(tokens[1].text == "12/02/27")
+        XCTAssert(tokens[1].tokenizer.date == DateToken.dateFormatter.date(from: tokens[1].text))
         
     }
 }
