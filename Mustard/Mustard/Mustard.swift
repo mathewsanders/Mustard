@@ -82,58 +82,64 @@ public extension String {
         let text = self
         var matches: [Match] = []
         
-        var startIndex = text.unicodeScalars.startIndex
-        nextCharacter: while startIndex < text.unicodeScalars.endIndex {
+        var tokenStartIndex = text.unicodeScalars.startIndex
+        advanceTokenStart: while tokenStartIndex < text.unicodeScalars.endIndex {
             
-            let validTokenizers = tokenizers.flatMap({ tokenizer -> TokenType? in
+            // prepare a backlog of tokens that can start with the current scalar
+            let possibleTokens = tokenizers.flatMap({ tokenizer -> TokenType? in
                 tokenizer.prepareForReuse()
-                return tokenizer.token(startingWith: text.unicodeScalars[startIndex])
+                return tokenizer.token(startingWith: text.unicodeScalars[tokenStartIndex])
             })
             
-            var tokenizerIndex = validTokenizers.startIndex
-            nextTokenizer: while tokenizerIndex < validTokenizers.endIndex {
+            var tokenIndex = possibleTokens.startIndex
+            attemptToken: while tokenIndex < possibleTokens.endIndex {
                 
-                let token = validTokenizers[tokenizerIndex]
+                // get a token from the backlog of potential tokens
+                let token = possibleTokens[tokenIndex]
                 
-                var currentIndex = startIndex
-                while currentIndex < text.unicodeScalars.endIndex {
+                var tokenEndIndex = tokenStartIndex
+                while tokenEndIndex < text.unicodeScalars.endIndex {
                     
-                    let nextIndex = text.unicodeScalars.index(after: currentIndex)
-                    let nextScalar = nextIndex == text.unicodeScalars.endIndex ? nil : text.unicodeScalars[nextIndex]
+                    // get the scalar at the next position (or nil if we're at the end of the text) 
+                    let currentIndex = text.unicodeScalars.index(after: tokenEndIndex)
+                    let scalar = (currentIndex == text.unicodeScalars.endIndex) ? nil : text.unicodeScalars[currentIndex]
                     
-                    if let scalar = nextScalar, token.canTake(scalar) {
-                        // token can continue matching so:
-                        // - expand token one position
-                        currentIndex = text.unicodeScalars.index(after: currentIndex)
+                    if let scalar = scalar, token.canTake(scalar) {
+                        // the scalar is not nil, and the token can take the scalar:
+                        // - expand tokenEndIndex one position
+                        tokenEndIndex = text.unicodeScalars.index(after: tokenEndIndex)
                     }
-                    else if token.isComplete, token.isValid(whenNextScalarIs: nextScalar),
-                        let start = startIndex.samePosition(in: text),
-                        let next = nextIndex.samePosition(in: text) {
-                        // the token is valid to be added to matches so:
-                        // - jump start index forward to next index; and
-                        // - start nextCharacter loop with updated start index
+                    else if token.isComplete, token.isValid(whenNextScalarIs: scalar),
+                        let start = tokenStartIndex.samePosition(in: text),
+                        let next = currentIndex.samePosition(in: text) {
+                        // the scalar is either nil, or the token can not take it; and
+                        // the token is complete, and is valid with context of next scalar/nil:
+                        // - append tokenzier, text, and range to matches;
+                        // - advance tokenStartIndex to the currentIndex; and
+                        // - continue looking for tokens at new startIndex
                         
                         matches.append(
                             (tokenizer: token.tokenizerForMatch,
                              text: text[start..<next],
                              range: start..<next))
                         
-                        startIndex = nextIndex
-                        continue nextCharacter
+                        tokenStartIndex = currentIndex
+                        continue advanceTokenStart
                     }
                     else {
-                        // token could not be added to matches so:
-                        // - advance the tokenizer index by one place
-                        // - start nextTokenizer loop with updated tokenizer index
-                        tokenizerIndex = validTokenizers.index(after: tokenizerIndex)
-                        continue nextTokenizer
+                        // the token was not complete, or was invalid given the next scalar:
+                        // - tokenStartIndex remains unchanged
+                        // - advance the token index
+                        // - attempt to match with next token
+                        tokenIndex = possibleTokens.index(after: tokenIndex)
+                        continue attemptToken
                     }
                 }
             }
             
-            // the character at this position doesn't meet criteria for any
-            // any tokens to start with, advance the start position by one and try again
-            startIndex = text.unicodeScalars.index(after: startIndex)
+            // token has reached the end of the text
+            // advance the tokenStartIndex to attempt match at next scalar
+            tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
         }
         
         return matches
