@@ -1,4 +1,4 @@
-// TokenType.swift
+// TokenizerType.swift
 //
 // Copyright (c) 2017 Mathew Sanders
 //
