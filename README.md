@@ -16,6 +16,8 @@ let words = sentence.components(separatedBy: .whitespace)
 Mustard provides a similar feature, but with the opposite approach, where instead of matching by separators you can match by one or more character sets, which is useful if separators simply don't exist:
 
 ````Swift
+import Mustard
+
 let sentence = "hello2007year"
 let words = sentence.components(matchedWith: .letters, .decimalDigits)
 // words.count -> 3
