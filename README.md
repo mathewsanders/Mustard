@@ -2,7 +2,7 @@
 
 Mustard is a Swift library for tokenizing strings when splitting by whitespace doesn't cut it.
 
-## Quick start
+## Quick start using character sets
 
 Mustard extends `String` with the method `tokens(from: CharacterSet...)` which allows you to pass in one
 or more character sets to use criteria to find tokens.
@@ -32,17 +32,18 @@ let tokens = messy.tokens(from: .decimalDigits, .letters)
 // tokens[4].range -> Range<String.Index>(19..<21)
 ````
 
+## Expressive use with custom tokenizers
+
 Creating by creating objects that implement the `TokenType` protocol we can create
-more advanced tokenizers. Here's some usage of a `DateToken` type that matches tokens
-with the a valid `MM/dd/yy` format, and also exposes a `date` property to access the
+more advanced tokenizers. Here's some usage of a `DateToken` type (see example for implementation) 
+that matches tokens with the a valid `MM/dd/yy` format, and also exposes a `date` property to access the
 corresponding `Date` object.
 
 ````Swift
 import Mustard
 
 let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
-
-let tokens:[DateToken.Token] = messyInput.tokens()
+let tokens: [DateToken.Token] = messyInput.tokens()
 // tokens.count -> 2
 // ('99/99/99' is *not* matched by `DateToken`)
 //
