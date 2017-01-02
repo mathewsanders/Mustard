@@ -49,8 +49,8 @@ let tokens: [Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits
 Rather than being limited to matching substrings from character sets, you can create your own tokenizers with more
 sophisticated matching behavior by implementing the `TokenizerType` protocol.
 
-Here's an example of using `DateTokenizer` ([see example](Documentation/Tokens with internal state.md) for implementation)
-that matches substrings with a valid `MM/dd/yy` format, and at the same time exposes a `Date` object corresponding to the  date represented by the substring:
+Here's an example of using `DateTokenizer` ([see example](Documentation/Documentation/Template tokenizer.md)
+for implementation) that matches substrings with a valid `MM/dd/yy` format, and at the same time exposes a `Date` object corresponding to the  date represented by the substring:
 
 ````Swift
 import Mustard
@@ -77,8 +77,9 @@ let tokens: [DateTokenizer.Token] = messyInput.tokens()
 - [Greedy tokens and tokenizer order](Documentation/Greedy tokens and tokenizer order.md)
 - [TokenizerType: implementing your own tokenizer](Documentation/TokenizerType protocol.md)
 - [Type safety using a single tokenizer](Documentation/Type safety using a single tokenizer.md)
-- [Example: emoji tokenizer](Documentation/Matching emoji.md)
-- [Example: literal and template matching using tokens with internal state](Documentation/Tokens with internal state.md)
+- [EmojiTokenizer: matching emoji substrings](Documentation/Matching emoji.md)
+- [LiteralTokenizer: matching specific substrings](/Documentation/Literal tokenizer.md)
+- [DateTokenizer: tokenizer based on template match](Documentation/Template tokenizer.md)
 
 ## Roadmap
 - [x] Include detailed examples and documentation
