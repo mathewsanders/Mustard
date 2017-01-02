@@ -1,19 +1,33 @@
+// TokenType.swift
 //
-//  TokenType.swift
-//  Mustard
+// Copyright (c) 2017 Mathew Sanders
 //
-//  Created by Mathew Sanders on 12/31/16.
-//  Copyright © 2016 Mathew Sanders. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 import Foundation
 
 /// A tuple capturing information about a token match.
 /// 
-/// - tokenType: The instance of `TokenType` that matched the token.
+/// - tokenizer: The instance of `TokenType` that matched the token.
 /// - text: The text that the token matched.
 /// - range: The range of the matched text in the original input.
-public typealias Token = (tokenizer: TokenType, text: String, range: Range<String.Index>)
+public typealias Match = (tokenizer: TokenType, text: String, range: Range<String.Index>)
 
 public protocol TokenType {
     
@@ -66,25 +80,33 @@ public protocol TokenType {
     /// Initialize an empty instance.
     init()
     
-    /// Returns a new instance of a token that's a copy of the reciever.
+    /// Returns a new instance of a token that's a copy of the receiver.
     ///
-    /// The object returned is set as the `tokenizer` element from a call to `tokens()`
+    /// The object returned is set as the `tokenizer` element from a call to `matches()`
     /// If the type implements NSCopying protocol, the default implementation returns the result of
     /// `copy(with: nil)`; otherwise, returns self.
     var tokenizerForMatch: TokenType { get }
-    
 }
 
 public extension TokenType {
     
-    typealias Token = (tokenizer: Self, text: String, range: Range<String.Index>)
+    /// A tuple capturing information about a token match.
+    ///
+    /// - tokenzier: The instance of Self that matched the token.
+    /// - text: The text that the token matched.
+    /// - range: The range of the matched text in the original input.
+    typealias Match = (tokenizer: Self, text: String, range: Range<String.Index>)
     
+    /// The default tokenzier for this type.
+    /// Is equivilent to using the default initalizer `init()`.
     static var tokenizer: TokenType { return Self() }
     
     func canStart(with scalar: UnicodeScalar) -> Bool {
         return canTake(scalar)
     }
 
+    /// Returns a boolean value if the token is complete.
+    /// This default implementation returns `true`.
     var isComplete: Bool {
         return true
     }
@@ -103,6 +125,11 @@ public extension TokenType {
     
     func prepareForReuse() {}
     
+    /// Returns a new instance of a token that's a copy of the reciever.
+    ///
+    /// The object returned is set as the `tokenizer` element from a call to `matches()`
+    /// If the type implements NSCopying protocol, the default implementation returns the result of
+    /// `copy(with: nil)`; otherwise, returns self.
     var tokenizerForMatch: TokenType {
         if let copying = self as? NSCopying, let aCopy = copying.copy(with: nil) as? TokenType {
             return aCopy

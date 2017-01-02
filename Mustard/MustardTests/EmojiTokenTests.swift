@@ -1,11 +1,24 @@
-
+// EmojiTokenTests.swift
 //
-//  EmojiTokenTests.swift
-//  Mustard
+// Copyright (c) 2017 Mathew Sanders
 //
-//  Created by Mathew Sanders on 12/30/16.
-//  Copyright © 2016 Mathew Sanders. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 import XCTest
 import Mustard
@@ -67,15 +80,15 @@ class EmojiTokenTests: XCTestCase {
         // -> 7 (4 base, combied with 3 zero-width joiners \u{200D})
         
         let sample = "baby:👶 baby:👶🏿 flag:🇳🇿 flag:🏳️‍🌈 family:👩‍👩‍👦‍👦"
-        let tokens = sample.tokens(from: EmojiToken.tokenizer)
+        let matches: [EmojiToken.Match] = sample.matches()
         
-        XCTAssert(tokens.count == 5, "Unexpected number of emoji tokens [\(tokens.count)]")
+        XCTAssert(matches.count == 5, "Unexpected number of emoji matches [\(matches.count)]")
         
-        XCTAssert(tokens[0].text == "👶")
-        XCTAssert(tokens[1].text == "👶🏿")
-        XCTAssert(tokens[2].text == "🇳🇿")
-        XCTAssert(tokens[3].text == "🏳️‍🌈")
-        XCTAssert(tokens[4].text == "👩‍👩‍👦‍👦")
+        XCTAssert(matches[0].text == "👶")
+        XCTAssert(matches[1].text == "👶🏿")
+        XCTAssert(matches[2].text == "🇳🇿")
+        XCTAssert(matches[3].text == "🏳️‍🌈")
+        XCTAssert(matches[4].text == "👩‍👩‍👦‍👦")
         
     }
 }

@@ -1,10 +1,24 @@
+// FuzzyMatchTokenTests.swift
 //
-//  FuzzyMatchTokenTests.swift
-//  Mustard
+// Copyright (c) 2017 Mathew Sanders
 //
-//  Created by Mathew Sanders on 12/31/16.
-//  Copyright © 2016 Mathew Sanders. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 import XCTest
 import Mustard
@@ -167,29 +181,29 @@ class FuzzyMatchTokenTests: XCTestCase {
         let fuzzyTokenzier = FuzzyLiteralMatch(target: "#YF1942B",
                                                ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
         
-        let tokens = messyInput.tokens(from: fuzzyTokenzier, DateToken.tokenizer)
+        let matches = messyInput.matches(from: fuzzyTokenzier, DateToken.tokenizer)
         
-        XCTAssert(tokens.count == 3, "Unexpected number of tokens [\(tokens.count)]")
+        XCTAssert(matches.count == 3, "Unexpected number of matches [\(matches.count)]")
         
-        XCTAssert(tokens[0].tokenizer is FuzzyLiteralMatch)
-        XCTAssert(tokens[0].text == "#YF 1942-b")
+        XCTAssert(matches[0].tokenizer is FuzzyLiteralMatch)
+        XCTAssert(matches[0].text == "#YF 1942-b")
         
-        XCTAssert(tokens[1].tokenizer is DateToken)
-        XCTAssert(tokens[1].text == "12/01/27")
+        XCTAssert(matches[1].tokenizer is DateToken)
+        XCTAssert(matches[1].text == "12/01/27")
     }
     
     func testDateMatches() {
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        let tokens: [DateToken.Token] = messyInput.tokens()
+        let matches: [DateToken.Match] = messyInput.matches()
         
-        XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
+        XCTAssert(matches.count == 2, "Unexpected number of matches [\(matches.count)]")
         
-        XCTAssert(tokens[0].text == "12/01/27")
-        XCTAssert(tokens[0].tokenizer.date == DateToken.dateFormatter.date(from: tokens[0].text))
+        XCTAssert(matches[0].text == "12/01/27")
+        XCTAssert(matches[0].tokenizer.date == DateToken.dateFormatter.date(from: matches[0].text))
         
-        XCTAssert(tokens[1].text == "12/02/27")
-        XCTAssert(tokens[1].tokenizer.date == DateToken.dateFormatter.date(from: tokens[1].text))
+        XCTAssert(matches[1].text == "12/02/27")
+        XCTAssert(matches[1].tokenizer.date == DateToken.dateFormatter.date(from: matches[1].text))
         
     }
 }

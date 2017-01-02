@@ -4,32 +4,30 @@ Mustard is a Swift library for tokenizing strings when splitting by whitespace d
 
 ## Quick start using character sets
 
-Mustard extends `String` with the method `tokens(from: CharacterSet...)` which allows you to pass in one
-or more character sets to use criteria to find tokens.
+Mustard extends `String` with the method `matches(from: CharacterSet...)` which allows you to pass in one
+or more character sets to use criteria to find substring matches using one or more character sets as tokenizers.
 
 Here's an example that extracts any sequence of characters that are either letters or digits:
 
 ````Swift
 import Mustard
 
-let messy = "123Hello world&^45.67"
-
-let tokens = messy.tokens(from: .decimalDigits, .letters)
-// tokens.count -> 5
-// tokens: [(tokenizer: TokenType, text: String, range: Range<String.Index>)]
-// tokens is an array of tuples which contains an instance of the TokenType that
-// matched the token, the actual text that was matched, and the range of the token
+let matches = "123Hello world&^45.67".matches(from: .decimalDigits, .letters)
+// matches.count -> 5
+// matches: [(tokenizer: TokenType, text: String, range: Range<String.Index>)]
+// matches is an array of tuples which contains an instance of the TokenType that
+// is responsible for the match, the actual text that was matched, and the range of the token
 // in the original input.
 //
 // second token..
-// tokens[1].tokenizer -> CharacterSet.letters
-// tokens[1].text -> "Hello"
-// tokens[1].range -> Range<String.Index>(3..<8)
+// matches[1].tokenizer -> CharacterSet.letters
+// matches[1].text -> "Hello"
+// matches[1].range -> Range<String.Index>(3..<8)
 //
 // last token..
-// tokens[4].tokenizer -> CharacterSet.decimalDigits
-// tokens[4].text -> "67"
-// tokens[4].range -> Range<String.Index>(19..<21)
+// matches[4].tokenizer -> CharacterSet.decimalDigits
+// matches[4].text -> "67"
+// matches[4].range -> Range<String.Index>(19..<21)
 ````
 
 ## Expressive use with custom tokenizers
@@ -44,60 +42,59 @@ corresponding `Date` object.
 import Mustard
 
 let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
-let tokens: [DateToken.Token] = messyInput.tokens()
-// tokens.count -> 2
+let matches: [DateToken.Match] = messyInput.matches()
+// matches.count -> 2
 // ('99/99/99' is *not* matched by `DateToken`)
 //
 // first date
-// tokens[0].text -> "12/01/27"
-// tokens[0].tokenizer -> DateToken()
-// tokens[0].tokenizer.date -> Date(2027-12-01 05:00:00 +0000)
+// matches[0].text -> "12/01/27"
+// matches[0].tokenizer -> DateToken()
+// matches[0].tokenizer.date -> Date(2027-12-01 05:00:00 +0000)
 //
 // last date
-// tokens[1].text -> "12/03/27"
-// tokens[1].tokenizer -> DateToken()
-// tokens[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
+// matches[1].text -> "12/03/27"
+// matches[1].tokenizer -> DateToken()
+// matches[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
 ````
 
 ## Tokenizers are greedy
 
-Tokenizers are greedy. The order that tokenizers are passed into the `tokens(from: TokenType...)` will effect the tokens
-that are matched.
+Tokenizers are greedy. The order that tokenizers are passed into the `matches(from: TokenType...)` will effect how substrings are matched.
 
 ````Swift
 import Mustard
 
 let numbers = "03/29/2017 36"
-let tokens = numbers.tokens(from: CharacterSet.decimalDigits, DateToken.tokenizer)
-// tokens.count -> 4
+let matches = numbers.matches(from: CharacterSet.decimalDigits, DateToken.tokenizer)
+// matches.count -> 4
 //
-// tokens[0].text -> "03"
-// tokens[0].tokenizer -> CharacterSet.decimalDigits
+// matches[0].text -> "03"
+// matches[0].tokenizer -> CharacterSet.decimalDigits
 //
-// tokens[1].text -> "29"
-// tokens[1].tokenizer -> CharacterSet.decimalDigits
+// matches[1].text -> "29"
+// matches[1].tokenizer -> CharacterSet.decimalDigits
 //
-// tokens[2].text -> "2017"
-// tokens[2].tokenizer -> CharacterSet.decimalDigits
+// matches[2].text -> "2017"
+// matches[2].tokenizer -> CharacterSet.decimalDigits
 //
-// tokens[3].text -> "36"
-// tokens[3].tokenizer -> CharacterSet.decimalDigits
+// matches[3].text -> "36"
+// matches[3].tokenizer -> CharacterSet.decimalDigits
 ````
 
-Typically to get expected behavior, the most specific tokenizers should be earlier in the list of tokenizers:
+To get expected behavior, the `matches` method should be called with more specific tokenizers placed before more general tokenizers:
 
 ````Swift
 import Mustard
 
 let numbers = "03/29/2017 36"
-let tokens = numbers.tokens(from: DateToken.tokenizer, CharacterSet.decimalDigits)
-// tokens.count -> 2
+let matches = numbers.matches(from: DateToken.tokenizer, CharacterSet.decimalDigits)
+// matches.count -> 2
 //
-// tokens[0].text -> "03/29/2017"
-// tokens[0].tokenizer -> DateToken()
+// matches[0].text -> "03/29/2017"
+// matches[0].tokenizer -> DateToken()
 //
-// tokens[1].text -> "36"
-// tokens[1].tokenizer -> CharacterSet.decimalDigits
+// matches[1].text -> "36"
+// matches[1].tokenizer -> CharacterSet.decimalDigits
 ````
 
 ## More information
