@@ -28,7 +28,7 @@ If you want more than just the substrings, you can use the `tokens(matchedWith: 
 import Mustard
 
 let tokens: [Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
-// Token: (text: String, range: Range<String.Index>, tokenizer: TokenizerType)
+// typealias Token = (text: String, range: Range<String.Index>, tokenizer: TokenizerType)
 // tokens.count -> 5 (characters '&', '^', and '.' are ignored)
 //
 // second token..
