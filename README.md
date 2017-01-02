@@ -34,9 +34,10 @@ let tokens = messy.tokens(from: .decimalDigits, .letters)
 
 ## Expressive use with custom tokenizers
 
-Creating by creating objects that implement the `TokenType` protocol we can create
-more advanced tokenizers. Here's some usage of a `DateToken` type ([see example](Documentation/4. Tokens with internal state.md) for implementation)
-that matches tokens with the a valid `MM/dd/yy` format, and also exposes a `date` property to access the
+By creating types that implement the `TokenType` protocol we can create tokenizers with more sophisticated behaviors.
+
+Here's some usage of a `DateToken` type ([see example](Documentation/4. Tokens with internal state.md) for implementation)
+that matches tokens with the a valid `MM/dd/yy` format, and at the same time exposes a `date` property allowing access to a
 corresponding `Date` object.
 
 ````Swift
@@ -56,6 +57,47 @@ let tokens: [DateToken.Token] = messyInput.tokens()
 // tokens[1].text -> "12/03/27"
 // tokens[1].tokenizer -> DateToken()
 // tokens[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
+````
+
+## Tokenizers are greedy
+
+Tokenizers are greedy. The order that tokenizers are passed into the `tokens(from: TokenType...)` will effect the tokens
+that are matched.
+
+````Swift
+import Mustard
+
+let numbers = "03/29/2017 36"
+let tokens = numbers.tokens(from: CharacterSet.decimalDigits, DateToken.tokenizer)
+// tokens.count -> 4
+//
+// tokens[0].text -> "03"
+// tokens[0].tokenizer -> CharacterSet.decimalDigits
+//
+// tokens[1].text -> "29"
+// tokens[1].tokenizer -> CharacterSet.decimalDigits
+//
+// tokens[2].text -> "2017"
+// tokens[2].tokenizer -> CharacterSet.decimalDigits
+//
+// tokens[3].text -> "36"
+// tokens[3].tokenizer -> CharacterSet.decimalDigits
+````
+
+Typically to get expected behavior, the most specific tokenizers should be earlier in the list of tokenizers:
+
+````Swift
+import Mustard
+
+let numbers = "03/29/2017 36"
+let tokens = numbers.tokens(from: DateToken.tokenizer, CharacterSet.decimalDigits)
+// tokens.count -> 2
+//
+// tokens[0].text -> "03/29/2017"
+// tokens[0].tokenizer -> DateToken()
+//
+// tokens[1].text -> "36"
+// tokens[1].tokenizer -> CharacterSet.decimalDigits
 ````
 
 ## More information
