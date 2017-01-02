@@ -24,69 +24,73 @@ import Foundation
 
 public extension String {
     
-    /// Returns matches from the string found using a single tokenizer of type `TokenType`.
+    /// Returns an array of `Token` in the `String` from a single tokenizer of type `TokenizerType`. 
+    /// Each Token contains a substring from the `String`, the range of the substring in the `String`, 
+    /// and an instance of `TokenizerType` that matched the substring.
     /// 
-    /// The type of TokenType that is used is inferred by the result type.
+    /// The `TokenizerType` is inferred by the result type of the method reciever.
     ///
     /// ~~~~
     /// // example usage:
-    /// // `WordToken` is a `TokenType` that matches any letter characters.
-    /// let input = "ab cd ef"
-    /// let matches: [WordToken.Match] = input.matches()
-    /// // matches.count -> 3
-    /// //
-    /// // matches[0] -> 
-    /// // (tokenizer: WordToken(), 
-    /// //  text: "ab", 
-    /// //  range: Range<String.Index>(0, 2))
+    /// // `WordTokenizer` is a `TokenizerType` that matches any letter characters.
+    ///
+    /// let tokens: [WordTokenizer.Token] = "ab cd ef".tokens()
+    /// // tokens.count -> 3
+    ///
+    /// // tokens[0] ->
+    /// // (text: "ab",
+    /// //  range: Range<String.Index>(0, 2)
+    /// //  tokenizer: WordTokenizer(),)
     /// ~~~~
     ///
-    /// Note: Using this method initalizes the TokenType with the default initalizer `init()`.
-    /// If the tokenizer needs to use another initalizer, then use the `matches(from:)` method
-    /// to find matches instead.
+    /// Note: Using this method initalizes a tokenizer with the default `init()` initalizer.
     ///
-    /// Returns: An array of type `T.Match` where T is the generic `TokenType` used.
-    func matches<T: TokenType>() -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
+    /// If the tokenizer needs to use another initalizer, then use the alternate `tokens(matchedWith:)` method
+    /// instead.
+    ///
+    /// Returns: An array of type `TokenizerType.Token`.
+    func tokens<T: TokenizerType>() -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
         
-        return self.matches(from: T()).flatMap({
-            if let tokenType = $0.tokenizer as? T {
-                return (tokenizer: tokenType, text: $0.text, range: $0.range)
+        return self.tokens(matchedWith: T()).flatMap({
+            if let tokenizer = $0.tokenizer as? T {
+                return (tokenizer: tokenizer, text: $0.text, range: $0.range)
             }
             else { return nil }
         })
     }
     
-    /// Returns matches from the string found using one or more tokenizers of type `TokenType`.
-    /// 
-    /// - Parameter tokenizers: One or more tokenizers to use to match substrings in the string.
+    /// Returns an array of `Token` in the `String` matched using one or more tokenizers of 
+    /// type `TokenizerType`.
     ///
-    /// Tokenizers are greedy and are used in the order that they occur within `tokenizers`.
+    /// - Parameter tokenizers: One or more tokenizers to use to match substrings in the `String`.
+    ///
+    /// Note: Tokenizers are greedy and are used in the order that they occur within `tokenizers`.
     ///
     /// Typical behavior when using tokeninzers that may match substrings in different ways is
     /// to call this method with the most specific tokenziers before more general tokenizers.
     /// 
-    /// If a specifc tokenzier fails to complete a match, the general tokenizer still has a 
-    /// chance to match it later.
+    /// If a specifc tokenzier fails to complete a match, subsequent tokenizers will be given the 
+    /// opportunity to match a substring.
     ///
-    /// Returns: An array of type `Match` which is a tuple containing an instance of the tokenizer
-    /// that matched the result, the substring that was matched, and the range of the matched 
-    /// substring in this string.
-    func matches(from tokenizers: TokenType...) -> [Match] {
-        return matches(from: tokenizers)
+    /// Returns: An array of `Token` where each token is a tuple containing a substring from the 
+    /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType` 
+    /// that matched the substring.
+    func tokens(matchedWith tokenizers: TokenizerType...) -> [Token] {
+        return tokens(from: tokenizers)
     }
     
-    internal func matches(from tokenizers: [TokenType]) -> [Match] {
+    internal func tokens(from tokenizers: [TokenizerType]) -> [Token] {
         
         guard !tokenizers.isEmpty else { return [] }
         
         let text = self
-        var matches: [Match] = []
+        var tokens: [Token] = []
         
         var tokenStartIndex = text.unicodeScalars.startIndex
         advanceTokenStart: while tokenStartIndex < text.unicodeScalars.endIndex {
             
             // prepare a backlog of tokens that can start with the current scalar
-            let possibleTokens = tokenizers.flatMap({ tokenizer -> TokenType? in
+            let possibleTokens = tokenizers.flatMap({ tokenizer -> TokenizerType? in
                 tokenizer.prepareForReuse()
                 return tokenizer.token(startingWith: text.unicodeScalars[tokenStartIndex])
             })
@@ -104,12 +108,12 @@ public extension String {
                     let currentIndex = text.unicodeScalars.index(after: tokenEndIndex)
                     let scalar = (currentIndex == text.unicodeScalars.endIndex) ? nil : text.unicodeScalars[currentIndex]
                     
-                    if let scalar = scalar, token.canTake(scalar) {
+                    if let scalar = scalar, token.tokenCanTake(scalar) {
                         // the scalar is not nil, and the token can take the scalar:
                         // - expand tokenEndIndex one position
                         tokenEndIndex = text.unicodeScalars.index(after: tokenEndIndex)
                     }
-                    else if token.isComplete, token.isValid(whenNextScalarIs: scalar),
+                    else if token.tokenIsComplete, token.tokenIsValid(whenNextScalarIs: scalar),
                         let start = tokenStartIndex.samePosition(in: text),
                         let next = currentIndex.samePosition(in: text) {
                         // the scalar is either nil, or the token can not take it; and
@@ -118,7 +122,7 @@ public extension String {
                         // - advance tokenStartIndex to the currentIndex; and
                         // - continue looking for tokens at new startIndex
                         
-                        matches.append(
+                        tokens.append(
                             (tokenizer: token.tokenizerForMatch,
                              text: text[start..<next],
                              range: start..<next))
@@ -142,6 +146,6 @@ public extension String {
             tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
         }
         
-        return matches
+        return tokens
     }
 }

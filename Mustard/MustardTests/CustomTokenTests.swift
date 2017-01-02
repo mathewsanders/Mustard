@@ -23,25 +23,25 @@
 import XCTest
 import Mustard
 
-struct NumberToken: TokenType {
+struct NumberTokenizer: TokenizerType {
     
     static private let numberCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
     
     // numbers must start with character 0...9
-    func canStart(with scalar: UnicodeScalar) -> Bool {
+    func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
         return CharacterSet.decimalDigits.contains(scalar)
     }
     
     // number token can include any character in 0...9 + '.'
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
-        return NumberToken.numberCharacters.contains(scalar)
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+        return NumberTokenizer.numberCharacters.contains(scalar)
     }
 }
 
-struct WordToken: TokenType {
+struct WordTokenizer: TokenizerType {
 
     // word token can include any character in a...z + A...Z
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         return CharacterSet.letters.contains(scalar)
     }
 }
@@ -50,21 +50,21 @@ class CustomTokenTests: XCTestCase {
     
     func testNumberToken() {
         
-        let matches = "123Hello world&^45.67".matches(from: NumberToken.tokenizer, WordToken.tokenizer)
+        let tokens = "123Hello world&^45.67".tokens(matchedWith: NumberTokenizer.defaultTokenzier, WordTokenizer.defaultTokenzier)
         
-        XCTAssert(matches.count == 4, "Unexpected number of matches [\(matches.count)]")
+        XCTAssert(tokens.count == 4, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].tokenizer is NumberToken)
-        XCTAssert(matches[0].text == "123")
+        XCTAssert(tokens[0].tokenizer is NumberTokenizer)
+        XCTAssert(tokens[0].text == "123")
         
-        XCTAssert(matches[1].tokenizer is WordToken)
-        XCTAssert(matches[1].text == "Hello")
+        XCTAssert(tokens[1].tokenizer is WordTokenizer)
+        XCTAssert(tokens[1].text == "Hello")
         
-        XCTAssert(matches[2].tokenizer is WordToken)
-        XCTAssert(matches[2].text == "world")
+        XCTAssert(tokens[2].tokenizer is WordTokenizer)
+        XCTAssert(tokens[2].text == "world")
         
-        XCTAssert(matches[3].tokenizer is NumberToken)
-        XCTAssert(matches[3].text == "45.67")
+        XCTAssert(tokens[3].tokenizer is NumberTokenizer)
+        XCTAssert(tokens[3].text == "45.67")
     }
 }
 

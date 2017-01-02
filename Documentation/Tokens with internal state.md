@@ -6,30 +6,30 @@ In examples so far, token types have looked at individual scalars without contex
 
 Without keeping some internal state of what's been matched so far, it's not possible to create a token that matches *cat* but not *cta* since they both start with the same scalar, and have the same set of characters.
 
-A `LiteralToken` is a more complex `TokenType` that uses a target `String` as the basis for tokenization:
+A `LiteralTokenizer` is a more complex `TokenizerType` that uses a target `String` as the basis for tokenization:
 
 ````Swift
 
-// implementing as class rather than struct since `canTake(_:)` will have mutating effect.
-class LiteralToken: TokenType {
+// implementing as class rather than struct since `tokenCanTake(_:)` will have mutating effect.
+class LiteralTokenizer: TokenizerType {
 
     private let target: String
     private var position: String.UnicodeScalarIndex
 
-    // required by the TokenType protocol, but non-sensical to use
+    // required by the TokenizerType protocol, but non-sensical to use
     required convenience init() {
         self.init(target: "")
     }
 
-    // instead, we should initalize instance with the target String we're looking for
+    // instead, we should initialize instance with the target String we're looking for
     init(target: String) {
         self.target = target
         self.position = target.unicodeScalars.startIndex
     }
 
     // instead of looking at a set of scalars, the order that the scalar occurs
-    // is relevent for the token
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    // is relevant for the token
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
 
         guard position < target.unicodeScalars.endIndex else {
             return false
@@ -48,7 +48,7 @@ class LiteralToken: TokenType {
 
     // this token is only complete when we've called `canTake(_:)` with the correct sequence
     // of scalars such that `position` has advanced to the endIndex of the target
-    var isComplete: Bool {
+    var tokenIsComplete: Bool {
         return position == target.unicodeScalars.endIndex
     }
 
@@ -63,7 +63,7 @@ class LiteralToken: TokenType {
         }
     }
 
-    // token instances are re-used, in most cases this doesn't matter, but because we keep
+    // tokenizer instances are re-used, in most cases this doesn't matter, but because we keep
     // an internal state, we need to reset this instance to start matching again
     func prepareForReuse() {
         position = target.unicodeScalars.startIndex
@@ -71,9 +71,9 @@ class LiteralToken: TokenType {
 }
 
 extension String {
-    // a convenience to allow us to use `"cat".literalToken` instead of `LiteralToken("cat")`
-    var literalToken: LiteralToken {
-        return LiteralToken(target: self)
+    // a convenience to allow us to use `"cat".literalToken` instead of `LiteralTokenizer("cat")`
+    var literalToken: LiteralTokenizer {
+        return LiteralTokenizer(target: self)
     }
 }
 ````
@@ -82,11 +82,11 @@ This allows us to match tokens by specific words. Note in this example that the 
 
 ````Swift
 let input = "the cat and the catastrophe duck"
-let matches = input.matches(from: "cat".literalToken, "duck".literalToken)
-matches.count // -> 2
+let tokens = input.tokens(matchedWith: "cat".literalToken, "duck".literalToken)
+tokens.count // -> 2
 
-for match in matches {
-    print("-", "'\(match.text)'")
+for token in tokens {
+    print("-", "'\(token.text)'")
 }
 // prints ->
 // - 'cat'
@@ -98,7 +98,7 @@ for match in matches {
 
 Another useful pattern would be allow us to look for a matching sequence of scalars but using a template rather than a literal match.
 
-A `DateMatch` is a more complex `TokenType` that uses an internal template as the basis for tokenization:
+A `DateTokenizer` is a more complex `TokenizerType` that uses an internal template as the basis for tokenization:
 
 ````Swift
 
@@ -108,7 +108,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-class DateToken: TokenType {
+class DateTokenizer: TokenizerType {
 
     // private properties
     private let _template = "00/00/00"
@@ -134,7 +134,7 @@ class DateToken: TokenType {
         _dateText = ""
     }
 
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
 
         guard _position < _template.unicodeScalars.endIndex else {
             // we've matched all of the template
@@ -154,7 +154,7 @@ class DateToken: TokenType {
         }
     }
 
-    var isComplete: Bool {
+    var tokenIsComplete: Bool {
         if _position == _template.unicodeScalars.endIndex,
             let date = DateToken.dateFormatter.date(from: _dateText) {
             // we've reached the end of the template
@@ -194,26 +194,26 @@ class DateToken: TokenType {
 
 This will match tokens for any text that has the format of three pairs of numbers joined with the '/' character, but will also ignore characters that match that format, but don't form a valid date.
 
-Combined with the technique used in the [expressive matching example](Documentation/3. Expressive matching.md) where tokenizing using a single TokenType returns results of the actual type used, we can even access the `Date` object associated with the token.
+Combined with the technique used in the [expressive matching example](Documentation/Expressive matching.md) where tokenizing using a single TokenType returns results of the actual type used, we can even access the `Date` object associated with the token.
 
 ````Swift
 import Mustard
 
 let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
 
-let dateMatches: [DateToken.Match] = messyInput.matches()
-// dateMatches.count -> 2
-// ('99/99/99' is not matched by `DateToken`)
+let dateTokens: [DateTokenizer.Token] = messyInput.tokens()
+// dateTokens.count -> 2
+// ('99/99/99' is not matched by `DateTokenizer`)
 //
 // first date
-// dateMatches[0].text -> "12/01/27"
-// dateMatches[0].tokenizer -> DateToken()
-// dateMatches[0].tokenizer.date -> Date(2027-12-01 05:00:00 +0000)
+// dateTokens[0].text -> "12/01/27"
+// dateTokens[0].tokenizer -> DateTokenizer()
+// dateTokens[0].tokenizer.date -> Date(2027-12-01 05:00:00 +0000)
 //
 // last date
-// dateMatches[1].text -> "12/03/27"
-// dateMatches[1].tokenizer -> DateToken()
-// dateMatches[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
+// dateTokens[1].text -> "12/03/27"
+// dateTokens[1].tokenizer -> DateTokenizer()
+// dateTokens[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
 ````
 
-See [FuzzyMatchTokenTests.swift](/Mustard/MustardTests/FuzzyMatchTokenTests.swift) for a unit test that includes fuzzy matching of a literal String, but ignoring certain characters.
+See [FuzzyMatchTokenTests.swift](/Mustard/MustardTests/FuzzyMatchTokenTests.swift) for a unit test that includes literal matching of a literal String, but fuzzy in the sense that it ignores certain characters.

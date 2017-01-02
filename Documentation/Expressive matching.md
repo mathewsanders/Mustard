@@ -1,83 +1,79 @@
 # Example: expressive matching
 
-The results returned by `matches(from:)`returns an array tuples with the signature `(tokenizer: TokenType, text: String, range: Range<String.Index>)`
+The results returned by `tokens(matchedWith:)`returns an array `Token` which in turn is a tuple with the signature `(tokenizer: TokenizerType, text: String, range: Range<String.Index>)`
 
 To make use of the `tokenizer` element, you need to either use type casting (using `as?`) or type checking (using `is`) for the `tokenizer` element to be useful.
 
-Maybe we want to filter out only tokens that are numbers:
+Maybe we want to filter out only tokens that were matched with a number tokenizer:
 
 ````Swift
 import Mustard
 
-let messy = "123Hello world&^45.67"
-let matches = messy.matches(from: .decimalDigits, .letters)
-// matches.count -> 5
+let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
+// tokens.count -> 5
 
-let numbers = matches.filter({ $0.tokenizer is NumberToken })
-// numbers.count -> 0
+let numberTokens = tokens.filter({ $0.tokenizer is NumberTokenizer })
+// numberTokens.count -> 0
 
 ````
 
-This can lead to bugs in your logic-- in the example above `numberTokens` will be empty because the tokenizers used were the character sets `.decimalDigits`, and `.letters`, so the filter won't match any of the tokens.
+This can lead to bugs in your logic-- in the example above `numberTokens` will be empty because the tokenizers used were  `CharacterSet.decimalDigits`, and `CharacterSet.letters`, so the filter won't match any of the tokens.
 
 This may seem like an obvious error, but it's the type of unexpected bug that can slip in when we're using loosely typed results.
 
-Thankfully, Mustard can return a strongly typed set of matches if a single `TokenType` is used:
+Thankfully, Mustard can return a strongly typed set of matches if a single `TokenizerType` is used:
 
 ````Swift
 import Mustard
 
-let messy = "123Hello world&^45.67"
-
-// call `matches()` method on string to get matching tokens from string
-let numberMatches: [NumberToken.Match] = messy.matches()
-// numberMatches.count -> 2
+// call `tokens()` method on `String` to get matching tokens from the string
+let numberTokens: [NumberTokenizer.Token] = "123Hello world&^45.67".tokens()
+// numberTokens.count -> 2
 
 ````
 
-Used in this way, this isn't very useful, but it does allow for multiple `TokenType` to be bundled together as a single `TokenType` by implementing a TokenType using an `enum`.
+Used in this way, this isn't very useful, but it does allow for multiple `TokenizerType` to be bundled together as a single tokenizer by implementing with an `enum`.
 
-An enum token type can either manage it's own internal state, or potentially act as a lightweight wrapper to existing tokenizers.
-Here's an example `TokenType` that acts as a wrapper for word, number, and emoji tokenizers:
+An enum tokenizer can either manage it's own internal state, or potentially act as a lightweight wrapper to other existing tokenizers.
+
+Here's an example `TokenizerType` that acts as a wrapper for word, number, and emoji tokenizers:
 
 ````Swift
-
-enum MixedToken: TokenType {
+enum MixedTokenizer: TokenizerType {
 
     case word
     case number
     case emoji
     case none // 'none' case not strictly needed, and
               // in this implementation will never be matched
-
     init() {
         self = .none
     }
 
-    static let wordToken = WordToken()
-    static let numberToken = NumberToken()
-    static let emojiToken = EmojiToken()
+    static let wordTokenizer = WordTokenizer()
+    static let numberTokenizer = NumberTokenizer()
+    static let emojiTokenizer = EmojiTokenizer()
 
-    func canAppend(next scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         switch self {
-        case .word: return MixedToken.wordToken.canAppend(next: scalar)
-        case .number: return MixedToken.numberToken.canAppend(next: scalar)
-        case .emoji: return MixedToken.emojiToken.canAppend(next: scalar)
+        case .word: return MixedTokenizer.wordTokenizer.tokenCanTake(scalar)
+        case .number: return MixedTokenizer.numberTokenizer.tokenCanTake(scalar)
+        case .emoji: return MixedTokenizer.emojiTokenizer.tokenCanTake(scalar)
         case .none:
             return false
         }
     }
 
-    func token(startingWith scalar: UnicodeScalar) -> TokenType? {
+    func token(startingWith scalar: UnicodeScalar) -> TokenizerType? {
 
-        if let _ = MixedToken.wordToken.token(startingWith: scalar) {
-            return MixedToken.word
+        if let _ = MixedTokenizer.wordTokenizer.token(startingWith: scalar) {
+            return MixedTokenizer.word
         }
-        else if let _ = MixedToken.numberToken.token(startingWith: scalar) {
-            return MixedToken.number
+        else if let _ = MixedTokenizer.numberTokenizer.token(startingWith: scalar) {
+            return MixedTokenizer.number
         }
-        else if let _ = MixedToken.emojiToken.token(startingWith: scalar) {
-            return MixedToken.emoji
+        else if let _ = MixedTokenizer.emojiTokenizer.token(startingWith: scalar) {
+            return MixedTokenizer.emoji
         }
         else {
             return nil
@@ -90,25 +86,25 @@ Mustard defines a default typealias for `Token` that exposes the specific type i
 results tuple.
 
 ````Swift
-public extension TokenType {
-    typealias Match = (tokenizer: Self, text: String, range: Range<String.Index>)
+public extension TokenizerType {
+    typealias Token = (tokenizer: Self, text: String, range: Range<String.Index>)
 }
 ````
 
-Setting your results array to this type gives you the option to use the shorter `matches()` method,
+Setting your results array to this type gives you the option to use the shorter `tokens()` method,
 where Mustard uses the inferred type to perform tokenization.
 
-Since the matches array is strongly typed, you can be more expressive with the results, and the
+Since the tokens array is strongly typed, you can be more expressive with the results, and the
 complier can give you more hints to prevent you from making mistakes.
 
 ````Swift
 
-// use the `matches()` method to grab matching substrings using a single tokenizer
-let matches: [MixedToken.Match] = "123👩‍👩‍👦‍👦Hello world👶 again👶🏿 45.67".matches()
-// matches.count -> 8
+// use the `tokens()` method to grab matching substrings using a single tokenizer
+let tokens: [MixedTokenizer.Token] = "123👩‍👩‍👦‍👦Hello world👶 again👶🏿 45.67".tokens()
+// tokens.count -> 8
 
-matches.forEach({ match in
-    switch (match.tokenizer, match.text) {
+tokens.forEach({ token in
+    switch (token.tokenizer, token.text) {
     case (.word, let word): print("word:", word)
     case (.number, let number): print("number:", number)
     case (.emoji, let emoji): print("emoji:", emoji)

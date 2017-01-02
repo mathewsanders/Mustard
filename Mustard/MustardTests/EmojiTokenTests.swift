@@ -23,16 +23,16 @@
 import XCTest
 import Mustard
 
-struct EmojiToken: TokenType {
+struct EmojiTokenizer: TokenizerType {
     
     // (e.g. can't start with a ZWJ)
-    func canStart(with scalar: UnicodeScalar) -> Bool {
-        return EmojiToken.isEmojiScalar(scalar)
+    func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
+        return EmojiTokenizer.isEmojiScalar(scalar)
     }
     
     // either in the known range for a emoji, or a ZWJ
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
-        return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+        return EmojiTokenizer.isEmojiScalar(scalar) || EmojiTokenizer.isJoiner(scalar)
     }
     
     static func isJoiner(_ scalar: UnicodeScalar) -> Bool {
@@ -80,15 +80,15 @@ class EmojiTokenTests: XCTestCase {
         // -> 7 (4 base, combied with 3 zero-width joiners \u{200D})
         
         let sample = "baby:👶 baby:👶🏿 flag:🇳🇿 flag:🏳️‍🌈 family:👩‍👩‍👦‍👦"
-        let matches: [EmojiToken.Match] = sample.matches()
+        let tokens: [EmojiTokenizer.Token] = sample.tokens()
         
-        XCTAssert(matches.count == 5, "Unexpected number of emoji matches [\(matches.count)]")
+        XCTAssert(tokens.count == 5, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].text == "👶")
-        XCTAssert(matches[1].text == "👶🏿")
-        XCTAssert(matches[2].text == "🇳🇿")
-        XCTAssert(matches[3].text == "🏳️‍🌈")
-        XCTAssert(matches[4].text == "👩‍👩‍👦‍👦")
+        XCTAssert(tokens[0].text == "👶")
+        XCTAssert(tokens[1].text == "👶🏿")
+        XCTAssert(tokens[2].text == "🇳🇿")
+        XCTAssert(tokens[3].text == "🏳️‍🌈")
+        XCTAssert(tokens[4].text == "👩‍👩‍👦‍👦")
         
     }
 }

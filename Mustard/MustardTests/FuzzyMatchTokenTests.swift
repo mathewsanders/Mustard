@@ -28,7 +28,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-class FuzzyLiteralMatch: TokenType {
+class FuzzyLiteralMatch: TokenizerType {
     
     let target: String
     private let exclusions: CharacterSet
@@ -44,7 +44,7 @@ class FuzzyLiteralMatch: TokenType {
         self.exclusions = exclusions
     }
     
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         
         guard position < target.unicodeScalars.endIndex else {
             // we've matched all of the target
@@ -81,7 +81,7 @@ class FuzzyLiteralMatch: TokenType {
         }
     }
     
-    var isComplete: Bool {
+    var tokenIsComplete: Bool {
         return position == target.unicodeScalars.endIndex
     }
     
@@ -90,7 +90,7 @@ class FuzzyLiteralMatch: TokenType {
     }
 }
 
-class DateToken: TokenType {
+class DateTokenizer: TokenizerType {
     
     // private properties
     private let _template = "00/00/00"
@@ -116,7 +116,7 @@ class DateToken: TokenType {
         _dateText = ""
     }
     
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         
         guard _position < _template.unicodeScalars.endIndex else {
             // we've matched all of the template
@@ -136,9 +136,9 @@ class DateToken: TokenType {
         }
     }
 
-    var isComplete: Bool {
+    var tokenIsComplete: Bool {
         if _position == _template.unicodeScalars.endIndex,
-            let date = DateToken.dateFormatter.date(from: _dateText) {
+            let date = DateTokenizer.dateFormatter.date(from: _dateText) {
             // we've reached the end of the template
             // and the date text collected so far represents a valid 
             // date format (e.g. not 99/99/99)
@@ -161,8 +161,8 @@ class DateToken: TokenType {
     // return an instance of tokenizer to return in matching tokens
     // we return a copy so that the instance keeps reference to the 
     // dateText that has been matched, and the date that was parsed
-    var tokenizerForMatch: TokenType {
-        return DateToken(text: _dateText, date: _date)
+    var tokenizerForMatch: TokenizerType {
+        return DateTokenizer(text: _dateText, date: _date)
     }
     
     // only used by `tokenizerForMatch`
@@ -181,29 +181,29 @@ class FuzzyMatchTokenTests: XCTestCase {
         let fuzzyTokenzier = FuzzyLiteralMatch(target: "#YF1942B",
                                                ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
         
-        let matches = messyInput.matches(from: fuzzyTokenzier, DateToken.tokenizer)
+        let tokens = messyInput.tokens(matchedWith: fuzzyTokenzier, DateTokenizer.defaultTokenzier)
         
-        XCTAssert(matches.count == 3, "Unexpected number of matches [\(matches.count)]")
+        XCTAssert(tokens.count == 3, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].tokenizer is FuzzyLiteralMatch)
-        XCTAssert(matches[0].text == "#YF 1942-b")
+        XCTAssert(tokens[0].tokenizer is FuzzyLiteralMatch)
+        XCTAssert(tokens[0].text == "#YF 1942-b")
         
-        XCTAssert(matches[1].tokenizer is DateToken)
-        XCTAssert(matches[1].text == "12/01/27")
+        XCTAssert(tokens[1].tokenizer is DateTokenizer)
+        XCTAssert(tokens[1].text == "12/01/27")
     }
     
     func testDateMatches() {
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        let matches: [DateToken.Match] = messyInput.matches()
+        let tokens: [DateTokenizer.Token] = messyInput.tokens()
         
-        XCTAssert(matches.count == 2, "Unexpected number of matches [\(matches.count)]")
+        XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].text == "12/01/27")
-        XCTAssert(matches[0].tokenizer.date == DateToken.dateFormatter.date(from: matches[0].text))
+        XCTAssert(tokens[0].text == "12/01/27")
+        XCTAssert(tokens[0].tokenizer.date == DateTokenizer.dateFormatter.date(from: tokens[0].text))
         
-        XCTAssert(matches[1].text == "12/02/27")
-        XCTAssert(matches[1].tokenizer.date == DateToken.dateFormatter.date(from: matches[1].text))
+        XCTAssert(tokens[1].text == "12/02/27")
+        XCTAssert(tokens[1].tokenizer.date == DateTokenizer.dateFormatter.date(from: tokens[1].text))
         
     }
 }
