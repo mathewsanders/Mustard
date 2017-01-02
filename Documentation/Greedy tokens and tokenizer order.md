@@ -2,7 +2,7 @@
 
 Tokenizers are greedy. The order that tokenizers are passed into the `matches(from: TokenType...)` will effect how substrings are matched.
 
-Here's an example using the `CharacterSet.decimalDigits` tokenizer and a custom tokenizer that matches dates in the format `MM/dd/yy` ([see example](Tokens with internal state.md) for implementation).
+Here's an example using the `CharacterSet.decimalDigits` tokenizer and the custom tokenizer `DateToken` that matches dates in the format `MM/dd/yy` ([see example](Tokens with internal state.md) for implementation).
 
 ````Swift
 import Mustard
@@ -60,5 +60,4 @@ let matches = numbers.matches(from: DateToken.tokenizer, CharacterSet.decimalDig
 //
 // matches[3].text -> "36"
 // matches[3].tokenizer -> CharacterSet.decimalDigits
-````
 ````
