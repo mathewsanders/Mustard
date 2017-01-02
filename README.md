@@ -49,7 +49,7 @@ let tokens: [Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits
 Rather than being limited to matching substrings from character sets, you can create your own tokenizers with more
 sophisticated matching behavior by implementing the `TokenizerType` protocol.
 
-Here's an example of using `DateTokenizer` ([see example](Documentation/Documentation/Template tokenizer.md)
+Here's an example of using `DateTokenizer` ([see example](Documentation/Template tokenizer.md)
 for implementation) that matches substrings with a valid `MM/dd/yy` format, and at the same time exposes a `Date` object corresponding to the  date represented by the substring:
 
 ````Swift
