@@ -24,7 +24,7 @@ import XCTest
 import Mustard
 
 // implementing as class rather than struct since `canTake(_:)` will have mutating effect.
-class LiteralToken: TokenType {
+class LiteralTokenizer: TokenizerType {
 
     private let target: String
     private var position: String.UnicodeScalarIndex
@@ -42,7 +42,7 @@ class LiteralToken: TokenType {
     
     // instead of looking at a set of scalars, the order that the scalar occurs 
     // is relevent for the token
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         
         guard position < target.unicodeScalars.endIndex else {
             return false
@@ -61,7 +61,7 @@ class LiteralToken: TokenType {
     
     // this token is only complete when we've called `canTake(_:)` with the correct sequence
     // of scalars such that `position` has advanced to the endIndex of the target
-    var isComplete: Bool {
+    var tokenIsComplete: Bool {
         return position == target.unicodeScalars.endIndex
     }
     
@@ -86,8 +86,8 @@ class LiteralToken: TokenType {
 
 extension String {
     // a convenience to allow us to use `"cat".literalToken` instead of `LiteralToken("cat")`
-    var literalToken: LiteralToken {
-        return LiteralToken(target: self)
+    var literalTokenizer: LiteralTokenizer {
+        return LiteralTokenizer(target: self)
     }
 }
 
@@ -97,15 +97,15 @@ class LiteralTokenTests: XCTestCase {
     func testGetCatAndDuck() {
         
         let input = "the cat and the catastrophe duck"
-        let matches = input.matches(from: "cat".literalToken, "duck".literalToken)
+        let tokens = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
         
-        XCTAssert(matches.count == 2, "Unexpected number of matches [\(matches.count)]")
+        XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].tokenizer is LiteralToken)
-        XCTAssert(matches[0].text == "cat")
+        XCTAssert(tokens[0].tokenizer is LiteralTokenizer)
+        XCTAssert(tokens[0].text == "cat")
         
-        XCTAssert(matches[1].tokenizer is LiteralToken)
-        XCTAssert(matches[1].text == "duck")
+        XCTAssert(tokens[1].tokenizer is LiteralTokenizer)
+        XCTAssert(tokens[1].text == "duck")
         
     }
 }

@@ -24,7 +24,7 @@ import XCTest
 import Mustard
 
 infix operator ==
-fileprivate func == (option: TokenType, input: CharacterSet) -> Bool {
+fileprivate func == (option: TokenizerType, input: CharacterSet) -> Bool {
     if let characterSet = option as? CharacterSet {
         return characterSet == input
     }
@@ -35,24 +35,24 @@ class CharacterSetTokenTests: XCTestCase {
     
     func testCharacterSetTokenizer() {
                 
-        let matches = "123Hello world&^45.67".matches(from: .decimalDigits, .letters)
+        let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
         
-        XCTAssert(matches.count == 5, "Unexpected number of characterset matches [\(matches.count)]")
+        XCTAssert(tokens.count == 5, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].tokenizer == CharacterSet.decimalDigits)
-        XCTAssert(matches[0].text == "123")
+        XCTAssert(tokens[0].tokenizer == CharacterSet.decimalDigits)
+        XCTAssert(tokens[0].text == "123")
         
-        XCTAssert(matches[1].tokenizer == CharacterSet.letters)
-        XCTAssert(matches[1].text == "Hello")
+        XCTAssert(tokens[1].tokenizer == CharacterSet.letters)
+        XCTAssert(tokens[1].text == "Hello")
         
-        XCTAssert(matches[2].tokenizer == CharacterSet.letters)
-        XCTAssert(matches[2].text == "world")
+        XCTAssert(tokens[2].tokenizer == CharacterSet.letters)
+        XCTAssert(tokens[2].text == "world")
         
-        XCTAssert(matches[3].tokenizer == CharacterSet.decimalDigits)
-        XCTAssert(matches[3].text == "45")
+        XCTAssert(tokens[3].tokenizer == CharacterSet.decimalDigits)
+        XCTAssert(tokens[3].text == "45")
         
-        XCTAssert(matches[4].tokenizer == CharacterSet.decimalDigits)
-        XCTAssert(matches[4].text == "67")
+        XCTAssert(tokens[4].tokenizer == CharacterSet.decimalDigits)
+        XCTAssert(tokens[4].text == "67")
         
     }
 }

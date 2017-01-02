@@ -1,43 +1,43 @@
 # Greedy tokens and tokenizer order
 
-Tokenizers are greedy. The order that tokenizers are passed into the `matches(from: TokenType...)` will effect how substrings are matched.
+Tokenizers are greedy. The order that tokenizers are passed into the `matches(from: TokenizerType...)` will effect how substrings are matched.
 
-Here's an example using the `CharacterSet.decimalDigits` tokenizer and the custom tokenizer `DateToken` that matches dates in the format `MM/dd/yy` ([see example](Tokens with internal state.md) for implementation).
+Here's an example using the `CharacterSet.decimalDigits` tokenizer and the custom tokenizer `DateTokenizer` that matches dates in the format `MM/dd/yy` ([see example](Tokens with internal state.md) for implementation).
 
 ````Swift
 import Mustard
 
 let numbers = "03/29/17 36"
-let matches = numbers.matches(from: CharacterSet.decimalDigits, DateToken.tokenizer)
-// matches.count -> 4
+let tokens = numbers.tokens(matchedWith: CharacterSet.decimalDigits, DateTokenizer.defaultTokenizer)
+// tokens.count -> 4
 //
-// matches[0].text -> "03"
-// matches[0].tokenizer -> CharacterSet.decimalDigits
+// tokens[0].text -> "03"
+// tokens[0].tokenizer -> CharacterSet.decimalDigits
 //
-// matches[1].text -> "29"
-// matches[1].tokenizer -> CharacterSet.decimalDigits
+// tokens[1].text -> "29"
+// tokens[1].tokenizer -> CharacterSet.decimalDigits
 //
-// matches[2].text -> "17"
-// matches[2].tokenizer -> CharacterSet.decimalDigits
+// tokens[2].text -> "17"
+// tokens[2].tokenizer -> CharacterSet.decimalDigits
 //
-// matches[3].text -> "36"
-// matches[3].tokenizer -> CharacterSet.decimalDigits
+// tokens[3].text -> "36"
+// tokens[3].tokenizer -> CharacterSet.decimalDigits
 ````
 
-To get expected behavior, the `matches` method should be called with more specific tokenizers placed before more general tokenizers:
+To get expected behavior, the `tokens` method should be called with more specific tokenizers placed before more general tokenizers:
 
 ````Swift
 import Mustard
 
 let numbers = "03/29/17 36"
-let matches = numbers.matches(from: DateToken.tokenizer, CharacterSet.decimalDigits)
-// matches.count -> 2
+let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits)
+// tokens.count -> 2
 //
-// matches[0].text -> "03/29/17"
-// matches[0].tokenizer -> DateToken()
+// tokens[0].text -> "03/29/17"
+// tokens[0].tokenizer -> DateTokenizer()
 //
-// matches[1].text -> "36"
-// matches[1].tokenizer -> CharacterSet.decimalDigits
+// tokens[1].text -> "36"
+// tokens[1].tokenizer -> CharacterSet.decimalDigits
 ````
 
 If the more specific tokenizer fails to match a token, the more general tokens still have a chance to perform matches:
@@ -46,18 +46,18 @@ If the more specific tokenizer fails to match a token, the more general tokens s
 import Mustard
 
 let numbers = "99/99/99 36"
-let matches = numbers.matches(from: DateToken.tokenizer, CharacterSet.decimalDigits)
-// matches.count -> 4
+let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits)
+// tokens.count -> 4
 //
-// matches[0].text -> "99"
-// matches[0].tokenizer -> CharacterSet.decimalDigits
+// tokens[0].text -> "99"
+// tokens[0].tokenizer -> CharacterSet.decimalDigits
 //
-// matches[1].text -> "99"
-// matches[1].tokenizer -> CharacterSet.decimalDigits
+// tokens[1].text -> "99"
+// tokens[1].tokenizer -> CharacterSet.decimalDigits
 //
-// matches[2].text -> "99"
-// matches[2].tokenizer -> CharacterSet.decimalDigits
+// tokens[2].text -> "99"
+// tokens[2].tokenizer -> CharacterSet.decimalDigits
 //
-// matches[3].text -> "36"
-// matches[3].tokenizer -> CharacterSet.decimalDigits
+// tokens[3].text -> "36"
+// tokens[3].tokenizer -> CharacterSet.decimalDigits
 ````

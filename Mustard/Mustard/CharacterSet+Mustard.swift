@@ -22,30 +22,38 @@
 
 import Foundation
 
-extension CharacterSet: TokenType {
-    public func canTake(_ scalar: UnicodeScalar) -> Bool {
+extension CharacterSet: TokenizerType {
+    public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
     }
 }
 
 extension String {
 
-    /// Returns matches from the string found using tokenizers made from one or more CharacterSet.
+    /// Returns an array of `Token` in the `String` matched using tokenization based on one or 
+    /// more characterSets.
     ///
-    /// - Parameter characterSets: One or more character sets to match substrings in the string.
+    /// - Parameter characterSets: One or more character sets to use as tokenziers to match 
+    /// substrings in the `String`.
     ///
-    /// This method is an alias for calling `matches(from tokenizers: TokenType...) -> [Match]`.
+    /// This method is an alias for calling `tokens(matchedWith tokenizers: TokenizerType...) -> [Token]`.
     ///
-    /// Returns: An array of type `Match` which is a tuple containing an instance of the tokenizer
-    /// that matched the result, the substring that was matched, and the range of the matched
-    /// substring in this string.
-    public func matches(from characterSets: CharacterSet...) -> [Match] {
-        return matches(from: characterSets)
+    /// Returns: An array of `Token` where each token is a tuple containing a substring from the
+    /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType`
+    /// that matched the substring.
+    public func tokens(matchedWith characterSets: CharacterSet...) -> [Token] {
+        return tokens(from: characterSets)
+    }
+    
+    /// Returns an array containing substrings from the `String` that have been matched by 
+    /// tokenization using one or more character sets.
+    public func components(matchedWith characterSets: CharacterSet...) -> [String] {
+        return tokens(from: characterSets).map({ $0.text })
     }
 }
 
 infix operator ~=
-public func ~= (option: CharacterSet, input: TokenType) -> Bool {
+public func ~= (option: CharacterSet, input: TokenizerType) -> Bool {
     if let characterSet = input as? CharacterSet {
         return characterSet == option
     }

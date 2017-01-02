@@ -23,41 +23,41 @@
 import XCTest
 import Mustard
 
-enum MixedToken: TokenType {
+enum MixedTokenizer: TokenizerType {
     
     case word
     case number
     case emoji
-    case none
-    
+    case none // 'none' case not strictly needed, and
+              // in this implementation will never be matched
     init() {
         self = .none
     }
     
-    static let wordToken = WordToken()
-    static let numberToken = NumberToken()
-    static let emojiToken = EmojiToken()
+    static let wordTokenizer = WordTokenizer()
+    static let numberTokenizer = NumberTokenizer()
+    static let emojiTokenizer = EmojiTokenizer()
     
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         switch self {
-        case .word: return MixedToken.wordToken.canTake(scalar)
-        case .number: return MixedToken.numberToken.canTake(scalar)
-        case .emoji: return MixedToken.emojiToken.canTake(scalar)
+        case .word: return MixedTokenizer.wordTokenizer.tokenCanTake(scalar)
+        case .number: return MixedTokenizer.numberTokenizer.tokenCanTake(scalar)
+        case .emoji: return MixedTokenizer.emojiTokenizer.tokenCanTake(scalar)
         case .none:
             return false
         }
     }
     
-    func token(startingWith scalar: UnicodeScalar) -> TokenType? {
+    func token(startingWith scalar: UnicodeScalar) -> TokenizerType? {
         
-        if let _ = MixedToken.wordToken.token(startingWith: scalar) {
-            return MixedToken.word
+        if let _ = MixedTokenizer.wordTokenizer.token(startingWith: scalar) {
+            return MixedTokenizer.word
         }
-        else if let _ = MixedToken.numberToken.token(startingWith: scalar) {
-            return MixedToken.number
+        else if let _ = MixedTokenizer.numberTokenizer.token(startingWith: scalar) {
+            return MixedTokenizer.number
         }
-        else if let _ = MixedToken.emojiToken.token(startingWith: scalar) {
-            return MixedToken.emoji
+        else if let _ = MixedTokenizer.emojiTokenizer.token(startingWith: scalar) {
+            return MixedTokenizer.emoji
         }
         else {
             return nil
@@ -69,33 +69,33 @@ class MixedTokenTests: XCTestCase {
     
     func testMixedTokens() {
         
-        let matches: [MixedToken.Match] = "123👩‍👩‍👦‍👦Hello world👶again👶🏿45.67".matches()
+        let tokens: [MixedTokenizer.Token] = "123👩‍👩‍👦‍👦Hello world👶again👶🏿45.67".tokens()
         
-        XCTAssert(matches.count == 8, "Unexpected number of matches [\(matches.count)]")
+        XCTAssert(tokens.count == 8, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(matches[0].tokenizer == .number)
-        XCTAssert(matches[0].text == "123")
+        XCTAssert(tokens[0].tokenizer == .number)
+        XCTAssert(tokens[0].text == "123")
         
-        XCTAssert(matches[1].tokenizer == .emoji)
-        XCTAssert(matches[1].text == "👩‍👩‍👦‍👦")
+        XCTAssert(tokens[1].tokenizer == .emoji)
+        XCTAssert(tokens[1].text == "👩‍👩‍👦‍👦")
         
-        XCTAssert(matches[2].tokenizer == .word)
-        XCTAssert(matches[2].text == "Hello")
+        XCTAssert(tokens[2].tokenizer == .word)
+        XCTAssert(tokens[2].text == "Hello")
         
-        XCTAssert(matches[3].tokenizer == .word)
-        XCTAssert(matches[3].text == "world")
+        XCTAssert(tokens[3].tokenizer == .word)
+        XCTAssert(tokens[3].text == "world")
     
-        XCTAssert(matches[4].tokenizer == .emoji)
-        XCTAssert(matches[4].text == "👶")
+        XCTAssert(tokens[4].tokenizer == .emoji)
+        XCTAssert(tokens[4].text == "👶")
         
-        XCTAssert(matches[5].tokenizer == .word)
-        XCTAssert(matches[5].text == "again")
+        XCTAssert(tokens[5].tokenizer == .word)
+        XCTAssert(tokens[5].text == "again")
         
-        XCTAssert(matches[6].tokenizer == .emoji)
-        XCTAssert(matches[6].text == "👶🏿")
+        XCTAssert(tokens[6].tokenizer == .emoji)
+        XCTAssert(tokens[6].text == "👶🏿")
         
-        XCTAssert(matches[7].tokenizer == .number)
-        XCTAssert(matches[7].text == "45.67")
+        XCTAssert(tokens[7].tokenizer == .number)
+        XCTAssert(tokens[7].text == "45.67")
         
     }
 }

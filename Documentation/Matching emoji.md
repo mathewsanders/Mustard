@@ -6,21 +6,21 @@ As an example, the character '👶🏿' is comprised by two scalars: '👶', and
 The rainbow flag character '🏳️‍🌈' is again comprised by two adjacent scalars '🏳' and '🌈'.
 A final example, the character '👨‍👨‍👧‍👦' is actually 7 scalars: '👨' '👨' '👧' '👦' joined by three ZWJs (zero-with joiner).
 
-To create a TokenType that matches emoji we can instead check to see if a scalar falls within known range, or if it's a ZWJ.
+To create a `TokenizerType` that matches emoji we can instead check to see if a scalar falls within known range, or if it's a ZWJ.
 
 This isn't the most *accurate* emoji tokenizer because it would potentially matches an emoji scalar followed by 100 zero-width joiners, but for basic use it might be enough.
 
 ````Swift
-struct EmojiToken: TokenType {
+struct EmojiTokenizer: TokenizerType {
 
     // (e.g. can't start with a ZWJ)
-    func canStart(with scalar: UnicodeScalar) -> Bool {
-        return EmojiToken.isEmojiScalar(scalar)
+    func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
+        return EmojiTokenizer.isEmojiScalar(scalar)
     }
 
     // either in the known range for a emoji, or a ZWJ
-    func canTake(_ scalar: UnicodeScalar) -> Bool {
-        return EmojiToken.isEmojiScalar(scalar) || EmojiToken.isJoiner(scalar)
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+        return EmojiTokenizer.isEmojiScalar(scalar) || EmojiTokenizer.isJoiner(scalar)
     }
 
     static func isJoiner(_ scalar: UnicodeScalar) -> Bool {
