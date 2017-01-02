@@ -34,7 +34,7 @@ let matches = "123Hello world&^45.67".matches(from: .decimalDigits, .letters)
 
 By creating types that implement the `TokenType` protocol we can create tokenizers with more sophisticated behaviors.
 
-Here's some usage of a `DateToken` type ([see example](Documentation/4. Tokens with internal state.md) for implementation)
+Here's some usage of a `DateToken` type ([see example](Documentation/Tokens with internal state.md) for implementation)
 that matches tokens with the a valid `MM/dd/yy` format, and at the same time exposes a `date` property allowing access to a
 corresponding `Date` object.
 
@@ -57,61 +57,19 @@ let matches: [DateToken.Match] = messyInput.matches()
 // matches[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
 ````
 
-## Tokenizers are greedy
+## Documentation & Examples
 
-Tokenizers are greedy. The order that tokenizers are passed into the `matches(from: TokenType...)` will effect how substrings are matched.
+- [Greedy tokens and tokenizer order](Documentation/Greedy tokens and tokenizer order.md)
+- [TallyType protocol: implementing your own tokenizer](Documentation/TallyType protocol.md)
+- [Example: matching emoji](Documentation/Matching emoji.md)
+- [Example: expressive matching](Documentation/Expressive matching.md)
+- [Example: literal and template matching using tokens with internal state](Documentation/Tokens with internal state.md)
 
-````Swift
-import Mustard
-
-let numbers = "03/29/2017 36"
-let matches = numbers.matches(from: CharacterSet.decimalDigits, DateToken.tokenizer)
-// matches.count -> 4
-//
-// matches[0].text -> "03"
-// matches[0].tokenizer -> CharacterSet.decimalDigits
-//
-// matches[1].text -> "29"
-// matches[1].tokenizer -> CharacterSet.decimalDigits
-//
-// matches[2].text -> "2017"
-// matches[2].tokenizer -> CharacterSet.decimalDigits
-//
-// matches[3].text -> "36"
-// matches[3].tokenizer -> CharacterSet.decimalDigits
-````
-
-To get expected behavior, the `matches` method should be called with more specific tokenizers placed before more general tokenizers:
-
-````Swift
-import Mustard
-
-let numbers = "03/29/2017 36"
-let matches = numbers.matches(from: DateToken.tokenizer, CharacterSet.decimalDigits)
-// matches.count -> 2
-//
-// matches[0].text -> "03/29/2017"
-// matches[0].tokenizer -> DateToken()
-//
-// matches[1].text -> "36"
-// matches[1].tokenizer -> CharacterSet.decimalDigits
-````
-
-## More information
-
-- [TallyType protocol: implementing your own tokenizer](Documentation/1. TallyType protocol.md)
-- [Example: matching emoji](Documentation/2. Matching emoji.md)
-- [Example: expressive matching](Documentation/3. Expressive matching.md)
-- [Example: literal and template matching using tokens with internal state](Documentation/4. Tokens with internal state.md)
-
-## Todo (0.1)
+## Roadmap
 - [x] Include detailed examples and documentation
 - [x] Ability to skip/ignore characters within match
 - [x] Include more advanced pattern matching for matching tokens
 - [ ] Make project logo ಠ_ಠ
-
-## Roadmap
-
 - [ ] Performance testing / benchmarking against Scanner
 - [ ] Include interface for working with Character tokenizers
 
