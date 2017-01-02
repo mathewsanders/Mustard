@@ -1,6 +1,6 @@
 # Example: Tokens with internal state
 
-## Literal Matching
+# Literal Matching
 
 In examples so far, token types have looked at individual scalars without context to other scalars that have already been matched.
 
@@ -194,7 +194,7 @@ class DateTokenizer: TokenizerType {
 
 This will match tokens for any text that has the format of three pairs of numbers joined with the '/' character, but will also ignore characters that match that format, but don't form a valid date.
 
-Combined with the technique used in the [expressive matching example](Documentation/Expressive matching.md) where tokenizing using a single TokenType returns results of the actual type used, we can even access the `Date` object associated with the token.
+Combined with the technique used in the [type safety using a single tokenizer](Documentation/Type safety using a single tokenizer.md) the tokenizer element is cast to `DateTokenizer` so we can access the `date` property from a Token result:
 
 ````Swift
 import Mustard

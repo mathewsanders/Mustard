@@ -44,10 +44,10 @@ let tokens: [Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits
 // tokens[4].tokenizer -> CharacterSet.decimalDigits
 ````
 
-## Expressive use with custom tokenizers
+## Advanced matching with custom tokenizers
 
 Rather than being limited to matching substrings from character sets, you can create your own tokenizers with more
-sophisticated behavior by implementing the `TokenizerType` protocol.
+sophisticated matching behavior by implementing the `TokenizerType` protocol.
 
 Here's an example of using `DateTokenizer` ([see example](Documentation/Tokens with internal state.md) for implementation)
 that matches substrings with a valid `MM/dd/yy` format, and at the same time exposes a `Date` object corresponding to the  date represented by the substring:
@@ -76,8 +76,8 @@ let tokens: [DateTokenizer.Token] = messyInput.tokens()
 
 - [Greedy tokens and tokenizer order](Documentation/Greedy tokens and tokenizer order.md)
 - [TokenizerType: implementing your own tokenizer](Documentation/TokenizerType protocol.md)
-- [Example: matching emoji](Documentation/Matching emoji.md)
-- [Example: expressive matching](Documentation/Expressive matching.md)
+- [Type safety using a single tokenizer](Documentation/Type safety using a single tokenizer.md)
+- [Example: emoji tokenizer](Documentation/Matching emoji.md)
 - [Example: literal and template matching using tokens with internal state](Documentation/Tokens with internal state.md)
 
 ## Roadmap

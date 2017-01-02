@@ -1,10 +1,10 @@
-# Example: expressive matching
+# Type safety using a single tokenizer
 
-The results returned by `tokens(matchedWith:)`returns an array `Token` which in turn is a tuple with the signature `(tokenizer: TokenizerType, text: String, range: Range<String.Index>)`
+When matching with multiple tokenizers, there is no choice but to return an array of `Token` where the tokenizer element is the of the type `TokenizerType`.
 
-To make use of the `tokenizer` element, you need to either use type casting (using `as?`) or type checking (using `is`) for the `tokenizer` element to be useful.
+To make use of the `tokenizer` element, you need to either use type casting (using `as?`) or type checking (using `is`) to figure out what type of tokenizer matched the substring.
 
-Maybe we want to filter out only tokens that were matched with a number tokenizer:
+Maybe we want to filter tokens to include only those that were matched with using a `NumberTokenizer` tokenizer:
 
 ````Swift
 import Mustard
@@ -14,10 +14,9 @@ let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letter
 
 let numberTokens = tokens.filter({ $0.tokenizer is NumberTokenizer })
 // numberTokens.count -> 0
-
 ````
 
-This can lead to bugs in your logic-- in the example above `numberTokens` will be empty because the tokenizers used were  `CharacterSet.decimalDigits`, and `CharacterSet.letters`, so the filter won't match any of the tokens.
+While it's obvious to us why numberTokens is empty (the string was tokenized using two character sets -- not a `NumberTokenizer` instance), from the compliers perspective there isn't anything wrong here
 
 This may seem like an obvious error, but it's the type of unexpected bug that can slip in when we're using loosely typed results.
 
@@ -26,17 +25,23 @@ Thankfully, Mustard can return a strongly typed set of matches if a single `Toke
 ````Swift
 import Mustard
 
-// call `tokens()` method on `String` to get matching tokens from the string
 let numberTokens: [NumberTokenizer.Token] = "123Hello world&^45.67".tokens()
+// NumberTokenizer.Token: (tokenizer: NumberTokenizer, text: String, range: Range<String.Index>)
 // numberTokens.count -> 2
+
+// numberTokens[0].text -> "123"
+// numberTokens[1].text -> "45.67"
 
 ````
 
-Used in this way, this isn't very useful, but it does allow for multiple `TokenizerType` to be bundled together as a single tokenizer by implementing with an `enum`.
+Using the `NumberTokenizer.Token` (which Mustard creates for every `TokenizerType`) which has a more specific type signature allows you to also use the shorter `tokens()` method which infers the type of tokenizer to match substrings.
 
-An enum tokenizer can either manage it's own internal state, or potentially act as a lightweight wrapper to other existing tokenizers.
+## Bundling multiple types safely
 
-Here's an example `TokenizerType` that acts as a wrapper for word, number, and emoji tokenizers:
+Achieving type-safety by limiting to a single `TokenizerType` may seem like a strong constraint for practical use, but
+with a little overhead it's possible to create a tokenizer that acts as a lightweight wrapper to multiple tokenizers.
+
+Here's an example `MixedTokenizer` that acts as a wrapper to existing word, number, and emoji tokenizers:
 
 ````Swift
 enum MixedTokenizer: TokenizerType {
@@ -82,20 +87,9 @@ enum MixedTokenizer: TokenizerType {
 }
 ````
 
-Mustard defines a default typealias for `Token` that exposes the specific type in the
-results tuple.
-
-````Swift
-public extension TokenizerType {
-    typealias Token = (tokenizer: Self, text: String, range: Range<String.Index>)
-}
-````
-
-Setting your results array to this type gives you the option to use the shorter `tokens()` method,
-where Mustard uses the inferred type to perform tokenization.
-
-Since the tokens array is strongly typed, you can be more expressive with the results, and the
-complier can give you more hints to prevent you from making mistakes.
+Now with the results of calling `tokens()` we can use switch to check what type of tokenizer was responsible for
+matching the substring and the complier will give us useful warnings or errors if we miss a case, or attempt to
+access a tokenizer type that isn't represented by `MixedTokenizer`:
 
 ````Swift
 
