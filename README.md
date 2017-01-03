@@ -7,10 +7,10 @@ Mustard is a Swift library for tokenizing strings when splitting by whitespace d
 Foundation includes the `String` method [`components(separatedBy:)`](https://developer.apple.com/reference/swift/string/1690777-components) that allows us to get substrings divided up by certain characters:
 
 ````Swift
-let sentence = "hello 2007 year"
+let sentence = "hello 2017 year"
 let words = sentence.components(separatedBy: .whitespace)
 // words.count -> 3
-// words = ["hello", "2007", "year"]
+// words = ["hello", "2017", "year"]
 ````  
 
 Mustard provides a similar feature, but with the opposite approach, where instead of matching by separators you can match by one or more character sets, which is useful if separators simply don't exist:
@@ -18,10 +18,10 @@ Mustard provides a similar feature, but with the opposite approach, where instea
 ````Swift
 import Mustard
 
-let sentence = "hello2007year"
+let sentence = "hello2017year"
 let words = sentence.components(matchedWith: .letters, .decimalDigits)
 // words.count -> 3
-// words = ["hello", "2007", "year"]
+// words = ["hello", "2017", "year"]
 ````  
 
 If you want more than just the substrings, you can use the `tokens(matchedWith: CharacterSet...)` method which returns a tuple with the substring, range, and the CharacterSet responsible for matching the substring:
@@ -55,21 +55,21 @@ for implementation) that matches substrings with a valid `MM/dd/yy` format, and 
 ````Swift
 import Mustard
 
-let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
+let messyInput = "Serial: #YF 1942-b 12/01/17 (Scanned) 12/03/17 (Arrived) ref: 99/99/99"
 
 let tokens: [DateTokenizer.Token] = messyInput.tokens()
 // tokens.count -> 2
 // ('99/99/99' is *not* matched by `DateTokenizer`)
 //
 // first date
-// tokens[0].text -> "12/01/27"
+// tokens[0].text -> "12/01/17"
 // tokens[0].tokenizer -> DateTokenizer()
-// tokens[0].tokenizer.date -> Date(2027-12-01 05:00:00 +0000)
+// tokens[0].tokenizer.date -> Date(2017-12-01 05:00:00 +0000)
 //
 // last date
-// tokens[1].text -> "12/03/27"
+// tokens[1].text -> "12/03/17"
 // tokens[1].tokenizer -> DateTokenizer()
-// tokens[1].tokenizer.date -> Date(2027-12-03 05:00:00 +0000)
+// tokens[1].tokenizer.date -> Date(2017-12-03 05:00:00 +0000)
 ````
 
 ## Documentation & Examples
