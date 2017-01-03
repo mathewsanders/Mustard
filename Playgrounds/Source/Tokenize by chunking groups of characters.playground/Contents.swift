@@ -44,3 +44,18 @@ chunks.count // -> 37
 chunks.forEach({ chunk in
     print(chunk)
 })
+
+// but if you're only using Mustard for this, you're probably better off with a stride based approach:
+// (via http://stackoverflow.com/questions/32212220/how-to-split-a-string-into-substrings-of-equal-length)
+func split(_ str: String, _ count: Int) -> [String] {
+    return stride(from: 0, to: str.characters.count, by: count).map { i -> String in
+        let startIndex = str.index(str.startIndex, offsetBy: i)
+        let endIndex   = str.index(startIndex, offsetBy: count, limitedBy: str.endIndex) ?? str.endIndex
+        return str[startIndex..<endIndex]
+    }
+}
+
+let functionalChunk = split(sequence, 10)
+functionalChunk.count // -> 37
+
+
