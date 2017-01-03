@@ -2,7 +2,7 @@
 
 Mustard may not be the best tool for your problem. Here are some common alternatives with some advantages, disadvantages, and code snippets to help you decide if Mustard is a good candidate for your problem.
 
-- [String.components](#string.components(separatedBy:))
+- [String.components](#stringcomponentsseparatedby)
 - [Scanner](#scanner)
 - [Regular expressions](#regular-expressions)
 - [Sequence operations](#sequence-operations)
@@ -100,11 +100,11 @@ while !scanner.isAtEnd {
 
 ````
 
-Apple gives a specific note around use of the scenario of setting the `charactersToBeSkipped` property to include characters that may be encountered during a scan:
+Apple gives a [specific note](https://developer.apple.com/reference/foundation/scanner/1410204-characterstobeskipped) around use of the scenario of setting the `charactersToBeSkipped` property to include characters that may be encountered during a scan:
 
 > Characters to be skipped are skipped prior to the scanner examining the target. For example, if a scanner ignores spaces and you send it a scanInt32(_:) message, it skips spaces until it finds a decimal digit or other character. While an element is being scanned, no characters are skipped. If you scan for something made of characters in the set to be skipped (for example, using scanInt32(_:) when the set of characters to be skipped is the decimal digits), the result is undefined.
 
-Here's an experiment to test that:
+Here's an experiment to test that scenario:
 
 ````Swift
 import Foundation
@@ -116,7 +116,7 @@ let number = numberScanner.scanDouble()
 // number -> 3.5
 ````
 
-For me it works as expected, but it doesn't give you confidence that it won't introduce a hard-to-diagnose bug in the future.
+For me, this works as expected, but it doesn't give you confidence that it won't introduce a hard-to-diagnose bug in the future.
 
 ### Refs
 
@@ -153,6 +153,7 @@ import Foundation
 
 let str = "his cat slept on 3 mats over 2 hours"
 
+// Note: these regular expression examples use String extension from http://nshipster.com/nsregularexpression/
 let pattern = "\\d+|\\w+"
 let formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
 let matches = formatter.matches(in: str, options: [], range: str.nsrange)

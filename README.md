@@ -80,6 +80,7 @@ let tokens: [DateTokenizer.Token] = messyInput.tokens()
 - [EmojiTokenizer: matching emoji substrings](Documentation/Matching emoji.md)
 - [LiteralTokenizer: matching specific substrings](/Documentation/Literal tokenizer.md)
 - [DateTokenizer: tokenizer based on template match](Documentation/Template tokenizer.md)
+- [Alternatives to using Mustard](/Documentation/Alternatives to using Mustard.md)
 
 ## Roadmap
 - [x] Include detailed examples and documentation
