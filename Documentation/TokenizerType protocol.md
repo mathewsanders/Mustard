@@ -1,10 +1,10 @@
 # TokenizerType protocol: implementing your own tokenizer
 
-You can create your own tokenizers by implementing the [`TokenizerType`](/Mustard/Mustard/TokenizerType.swift) protocol.
+You can create your own tokenizers by implementing the [`TokenizerType`](/Sources/TokenizerType.swift) protocol.
 
 Default implementations are provided for all methods except for `tokenCanTake(_:)` which means many implementations may be trivial.
 
-Here's a slimmed down view of the protocol (see [`TokenizerType.swift`](/Mustard/Mustard/TokenizerType.swift) for full documentation).
+Here's a slimmed down view of the protocol (see [`TokenizerType.swift`](/Sources/TokenizerType.swift) for full documentation).
 
 ````Swift
 
