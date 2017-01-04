@@ -23,7 +23,7 @@
 import XCTest
 import Mustard
 
-struct EmojiTokenizer: TokenizerType {
+struct EmojiTokenizer: TokenizerType, DefaultTokenizerType {
     
     // (e.g. can't start with a ZWJ)
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool {

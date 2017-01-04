@@ -23,7 +23,7 @@
 import XCTest
 import Mustard
 
-enum MixedTokenizer: TokenizerType {
+enum MixedTokenizer: TokenizerType, DefaultTokenizerType {
     
     case word
     case number

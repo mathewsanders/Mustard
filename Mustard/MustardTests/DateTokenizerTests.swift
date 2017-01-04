@@ -9,7 +9,7 @@
 import XCTest
 import Mustard
 
-class DateTokenizer: TokenizerType {
+class DateTokenizer: TokenizerType, DefaultTokenizerType {
     
     // private properties
     private let _template = "00/00/00"
@@ -22,18 +22,18 @@ class DateTokenizer: TokenizerType {
         return _date!
     }
     
+    // called when we access `DateToken.defaultTokenizer`
+    required init() {
+        _position = _template.unicodeScalars.startIndex
+        _dateText = ""
+    }
+    
     // formatters are expensive, so only instantiate once for all DateTokens
     static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yy"
         return dateFormatter
     }()
-    
-    // called when we access `DateToken.tokenizer`
-    required init() {
-        _position = _template.unicodeScalars.startIndex
-        _dateText = ""
-    }
     
     func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         
