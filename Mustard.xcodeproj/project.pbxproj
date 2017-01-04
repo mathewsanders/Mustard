@@ -73,8 +73,8 @@
 		AFC3B9131E16E379005B4A99 = {
 			isa = PBXGroup;
 			children = (
-				AFC3B91F1E16E379005B4A99 /* Mustard */,
-				AFC3B92A1E16E379005B4A99 /* MustardTests */,
+				AFC3B91F1E16E379005B4A99 /* Sources */,
+				AFC3B92A1E16E379005B4A99 /* Tests */,
 				AFC3B91E1E16E379005B4A99 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,7 +88,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AFC3B91F1E16E379005B4A99 /* Mustard */ = {
+		AFC3B91F1E16E379005B4A99 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				AFC3B9201E16E379005B4A99 /* Mustard.h */,
@@ -97,10 +97,10 @@
 				AFC3B9391E16E3DE005B4A99 /* CharacterSet+Mustard.swift */,
 				AFC3B9211E16E379005B4A99 /* Info.plist */,
 			);
-			path = Mustard;
+			path = Sources;
 			sourceTree = "<group>";
 		};
-		AFC3B92A1E16E379005B4A99 /* MustardTests */ = {
+		AFC3B92A1E16E379005B4A99 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				AFC3B92B1E16E379005B4A99 /* CharacterSetTokenTests.swift */,
@@ -113,7 +113,7 @@
 				AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */,
 				AFC3B92D1E16E379005B4A99 /* Info.plist */,
 			);
-			path = MustardTests;
+			path = Tests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -370,7 +370,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = Mustard/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mathewsanders.Mustard;
@@ -391,7 +391,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = Mustard/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mathewsanders.Mustard;
@@ -406,7 +406,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = AA32363L2C;
-				INFOPLIST_FILE = MustardTests/Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mathewsanders.MustardTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -419,7 +419,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = AA32363L2C;
-				INFOPLIST_FILE = MustardTests/Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mathewsanders.MustardTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
