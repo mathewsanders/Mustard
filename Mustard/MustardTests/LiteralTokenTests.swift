@@ -29,11 +29,6 @@ class LiteralTokenizer: TokenizerType {
     private let target: String
     private var position: String.UnicodeScalarIndex
     
-    // required by the TokenType protocol, but non-sensical to use
-    required convenience init() {
-        self.init(target: "")
-    }
-    
     // instead, we should initalize instance with the target String we're looking for
     init(target: String) {
         self.target = target
@@ -91,21 +86,16 @@ extension String {
     }
 }
 
-
 class LiteralTokenTests: XCTestCase {
     
     func testGetCatAndDuck() {
         
         let input = "the cat and the catastrophe duck"
-        let tokens = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
+        let tokens: [LiteralTokenizer.Token] = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
         
         XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(tokens[0].tokenizer is LiteralTokenizer)
         XCTAssert(tokens[0].text == "cat")
-        
-        XCTAssert(tokens[1].tokenizer is LiteralTokenizer)
         XCTAssert(tokens[1].text == "duck")
-        
     }
 }

@@ -8,6 +8,7 @@ Here's a slimmed down view of the protocol (see [`TokenizerType.swift`](/Mustard
 
 ````Swift
 
+/// Defines the implementation needed to create a tokenizer for use with Mustard.
 public protocol TokenizerType {
 
     /* required methods  */
@@ -21,9 +22,6 @@ public protocol TokenizerType {
     ///
     /// - Returns: `true` if the token can take this this scalar; otherwise, false.
     func tokenCanTake(_ scalar: UnicodeScalar) -> Bool
-
-    // structs get this for free if any properties have default values
-    init()
 
     /* default implementations provided  */
 
@@ -49,11 +47,26 @@ public protocol TokenizerType {
 
 ````
 
-As an example, here's the extension that Mustard uses to allow any `CharacterSet` to act as a tokenizer.
+An brief additional protocol `DefaultTokenizerType` can be used for tokenizers that have a default initializer,
+which provides some useful methods (see [type safety using a single tokenizer](Type safety using a single tokenizer) for more information).
+
+````Swift
+/// Defines the implementation needed for a TokenizerType to have some convenience methods
+/// enabled when the tokenizer has a default initializer.
+public protocol DefaultTokenizerType: TokenizerType {
+
+    /// Initialize an empty instance of the tokenizer.
+    init()
+}
+````
+
+Implementations of tokenizers can range from trivial to complex.
+
+As an example, here's the extension that Mustard provides that allows any `CharacterSet` to act as a tokenizer:
 
 ````Swift
 
-extension CharacterSet: TokenizerType {
+extension CharacterSet: TokenizerType, DefaultTokenizerType {
     public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
     }
@@ -61,10 +74,10 @@ extension CharacterSet: TokenizerType {
 
 ````
 
-Here's an example showing how to match individuals words identified by [camel case](https://en.wikipedia.org/wiki/Camel_case):
+Here's a *slightly* more complex example showing a tokenizer that matches words identified by [camel case](https://en.wikipedia.org/wiki/Camel_case):
 
 ````Swift
-struct CamelCaseTokenizer: TokenizerType {
+struct CamelCaseTokenizer: TokenizerType, DefaultTokenizerType {
 
     // start of token is identified by an uppercase letter
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool
@@ -76,18 +89,6 @@ struct CamelCaseTokenizer: TokenizerType {
         return CharacterSet.lowercaseLetters.contains(scalar)
     }
 }
-````
-
-Mustard uses instances of TokenizerType to perform tokenization. If your `TokenizerType` uses the default
-initializer, you have the option of using the static property `defaultTokenizer` as a semantic alias.
-
-````Swift
-let words = "HelloWorld".tokens(matchedWith: CamelCaseTokenizer.defaultTokenizer)
-// `CamelCaseTokenizer.defaultTokenizer` is equivalent to `CamelCaseTokenizer()`
-
-// words.count -> 2
-// words[0].text -> "Hello"
-// words[1].text -> "World"
 ````
 
 For more complex examples of implementing TokenizerType, see examples for [EmojiTokenizer](Matching emoji.md), [LiteralTokenizer](Literal tokenizer.md), [DateTokenizer](Template tokenizer.md), and [unit tests](/Mustard/MustardTests).

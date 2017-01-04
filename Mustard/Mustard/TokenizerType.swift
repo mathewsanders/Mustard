@@ -29,6 +29,7 @@ import Foundation
 /// - range: The range of the matched text in the original string.
 public typealias Token = (tokenizer: TokenizerType, text: String, range: Range<String.Index>)
 
+/// Defines the implementation needed to create a tokenizer for use with Mustard.
 public protocol TokenizerType {
     
     /// Returns an instance of a tokenizer that starts with the given scalar,
@@ -87,9 +88,6 @@ public protocol TokenizerType {
     /// `tokenCanTake(_:)`
     func prepareForReuse()
     
-    /// Initialize an empty instance of the tokenizer.
-    init()
-    
     /// Returns an instance of the tokenizer that will be used as the `tokenizer` element in the `Token` tuple.
     ///
     /// If the tokenizer implements `NSCopying` protocol, the default implementation returns the result of
@@ -97,6 +95,20 @@ public protocol TokenizerType {
     /// 
     /// Provide an alternate implementation if the tokenizer is a reference type that does not implement `NSCopying`.
     var tokenizerForMatch: TokenizerType { get }
+}
+
+/// Defines the implementation needed for a TokenizerType to have some convenience methods
+/// enabled when the tokenizer has a default initializer.
+public protocol DefaultTokenizerType: TokenizerType {
+    
+    /// Initialize an empty instance of the tokenizer.
+    init()
+}
+
+extension DefaultTokenizerType {
+    /// The default tokenzier for this type.
+    /// This is equivilent to using the default initalizer `init()`.
+    public static var defaultTokenzier: DefaultTokenizerType { return Self() }
 }
 
 public extension TokenizerType {
@@ -107,10 +119,6 @@ public extension TokenizerType {
     /// - text: A substring that the tokenizer matched in the original string.
     /// - range: The range of the matched text in the original string.
     typealias Token = (tokenizer: Self, text: String, range: Range<String.Index>)
-    
-    /// The default tokenzier for this type.
-    /// This is equivilent to using the default initalizer `init()`.
-    static var defaultTokenzier: TokenizerType { return Self() }
     
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
         return tokenCanTake(scalar)

@@ -17,7 +17,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-class DateTokenizer: TokenizerType {
+class DateTokenizer: TokenizerType, DefaultTokenizerType {
 
     // private properties
     private let _template = "00/00/00"

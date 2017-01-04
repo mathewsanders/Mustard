@@ -23,7 +23,7 @@
 import XCTest
 import Mustard
 
-struct NumberTokenizer: TokenizerType {
+struct NumberTokenizer: TokenizerType, DefaultTokenizerType {
     
     static private let numberCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
     
@@ -38,7 +38,7 @@ struct NumberTokenizer: TokenizerType {
     }
 }
 
-struct WordTokenizer: TokenizerType {
+struct WordTokenizer: TokenizerType, DefaultTokenizerType {
 
     // word token can include any character in a...z + A...Z
     func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {

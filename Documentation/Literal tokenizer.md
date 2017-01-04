@@ -16,12 +16,7 @@ class LiteralTokenizer: TokenizerType {
     private let target: String
     private var position: String.UnicodeScalarIndex
 
-    // required by the TokenizerType protocol, but non-sensical to use
-    required convenience init() {
-        self.init(target: "")
-    }
-
-    // instead, we should initialize instance with the target String we're looking for
+    // initialize a tokenizer with the target String we're looking for
     init(target: String) {
         self.target = target
         self.position = target.unicodeScalars.startIndex
@@ -101,4 +96,4 @@ for token in tokens {
 
 ````
 
-See [FuzzyMatchTokenTests.swift](/Mustard/MustardTests/FuzzyMatchTokenTests.swift) for a unit test that includes matching a literal String, but allowing some flexibility in the literal match by ignoring certain characters. 
+See [FuzzyMatchTokenTests.swift](/Mustard/MustardTests/FuzzyMatchTokenTests.swift) for a unit test that includes matching a literal String, but allowing some flexibility in the literal match by ignoring certain characters.

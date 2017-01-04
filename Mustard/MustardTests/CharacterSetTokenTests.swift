@@ -35,7 +35,7 @@ class CharacterSetTokenTests: XCTestCase {
     
     func testCharacterSetTokenizer() {
                 
-        let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
+        let tokens: [CharacterSet.Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
         
         XCTAssert(tokens.count == 5, "Unexpected number of tokens [\(tokens.count)]")
         
