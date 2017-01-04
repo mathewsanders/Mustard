@@ -4,7 +4,7 @@ Note: To use framework in a playground, the playground must be opened in a works
  If you recieve the error *"Playground execution failed: error: no such module 'Mustard'"* then run Project -> Build (⌘B).
 */
 
-import Foundation
+import Swift
 import Mustard
 
 

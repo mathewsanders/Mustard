@@ -4,7 +4,7 @@
  If you recieve the error *"Playground execution failed: error: no such module 'Mustard'"* then run Project -> Build (⌘B).
  */
 
-import Foundation
+import Swift
 import Mustard
 
 class ChunkingTokenizer: TokenizerType {

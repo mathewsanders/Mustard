@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import Swift
 
 extension CharacterSet: TokenizerType, DefaultTokenizerType {
     public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
