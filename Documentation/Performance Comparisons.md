@@ -2,7 +2,7 @@
 
 Mustard currently isn't the fastest solution, but if you're willing to trade some performance for more reusable tokenizers, and in some cases more readable code, the Mustard might still be a good fit.
 
-I'm currently using two benchmarks:
+I'm currently using [two benchmarks](/Tests/PerformanceTests.swift):
 
 1. separating by whitespace (which Mustard isn't intended to be used for, but interesting comparison); and
 2. separating by sequential groups of letters or digits.
