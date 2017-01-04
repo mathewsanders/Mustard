@@ -83,13 +83,14 @@ let tokens: [DateTokenizer.Token] = messyInput.tokens()
 - [LiteralTokenizer: matching specific substrings](/Documentation/Literal tokenizer.md)
 - [DateTokenizer: tokenizer based on template match](Documentation/Template tokenizer.md)
 - [Alternatives to using Mustard](/Documentation/Alternatives to using Mustard.md)
+- [Performance comparisons](/Documentation/Performance Comparisons.md)
 
 ## Roadmap
 - [x] Include detailed examples and documentation
 - [x] Ability to skip/ignore characters within match
 - [x] Include more advanced pattern matching for matching tokens
-- [ ] Make project logo ಠ_ಠ
-- [ ] Performance testing / benchmarking against Scanner
+- [x] Make project logo 🌭
+- [x] Performance testing / benchmarking against Scanner
 - [ ] Include interface for working with Character tokenizers
 
 ## Requirements

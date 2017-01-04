@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		404340181E1D5783008B44B2 /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404340171E1D5783008B44B2 /* PerformanceTests.swift */; };
 		AF51939A1E188BCD003711E7 /* FuzzyMatchTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */; };
 		AF51939C1E19E464003711E7 /* FallbackTokenizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */; };
 		AF5193C71E1B6F83003711E7 /* DateTokenizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5193C61E1B6F83003711E7 /* DateTokenizerTests.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		404340171E1D5783008B44B2 /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
 		AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FuzzyMatchTokenTests.swift; sourceTree = "<group>"; };
 		AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FallbackTokenizerTests.swift; sourceTree = "<group>"; };
 		AF5193C61E1B6F83003711E7 /* DateTokenizerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTokenizerTests.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				AF5193991E188BCD003711E7 /* FuzzyMatchTokenTests.swift */,
 				AF5193C61E1B6F83003711E7 /* DateTokenizerTests.swift */,
 				AF51939B1E19E464003711E7 /* FallbackTokenizerTests.swift */,
+				404340171E1D5783008B44B2 /* PerformanceTests.swift */,
 				AFC3B92D1E16E379005B4A99 /* Info.plist */,
 			);
 			path = Tests;
@@ -247,6 +250,7 @@
 				AF51939C1E19E464003711E7 /* FallbackTokenizerTests.swift in Sources */,
 				AF5DE7661E16F71D007E2D49 /* MixedTokenTests.swift in Sources */,
 				AF5193C71E1B6F83003711E7 /* DateTokenizerTests.swift in Sources */,
+				404340181E1D5783008B44B2 /* PerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
