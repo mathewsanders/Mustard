@@ -22,12 +22,22 @@
 
 import Swift
 
+public protocol TokenType {
+    var text: String { get }
+    var range: Range<String.Index> { get }
+}
+
+public struct Token: TokenType {
+    public let text: String
+    public let range: Range<String.Index>
+}
+
 /// Token is a typealias for a tuple with the following named elements:
 /// 
 /// - tokenizer: An instance of `TokenizerType` that matched the token.
 /// - text: A substring that the tokenizer matched in the original string.
 /// - range: The range of the matched text in the original string.
-public typealias Token = (tokenizer: TokenizerType, text: String, range: Range<String.Index>)
+public typealias Match = (token: TokenType, tokenizer: TokenizerType)
 
 /// Defines the implementation needed to create a tokenizer for use with Mustard.
 public protocol TokenizerType {
@@ -95,6 +105,9 @@ public protocol TokenizerType {
     /// 
     /// Provide an alternate implementation if the tokenizer is a reference type that does not implement `NSCopying`.
     var tokenizerForMatch: TokenizerType { get }
+    
+    func makeToken(text: String, range: Range<String.Index>) -> TokenType
+    
 }
 
 /// Defines the implementation needed for a TokenizerType to have some convenience methods
@@ -118,7 +131,7 @@ public extension TokenizerType {
     /// - tokenizer: An instance of `Self` that matched the token.
     /// - text: A substring that the tokenizer matched in the original string.
     /// - range: The range of the matched text in the original string.
-    typealias Token = (tokenizer: Self, text: String, range: Range<String.Index>)
+    typealias Match = (token: TokenType, tokenizer: Self)
     
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
         return tokenCanTake(scalar)
@@ -143,6 +156,11 @@ public extension TokenizerType {
     }
     
     func prepareForReuse() {}
+    
+    
+    func makeToken(text: String, range: Range<String.Index>) -> TokenType {
+        return Token(text: text, range: range)
+    }
     
     /// Returns an instance of the tokenizer that will be used as the `tokenizer` element in the `Token` tuple.
     ///

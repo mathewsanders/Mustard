@@ -41,14 +41,14 @@ extension String {
     /// Returns: An array of `Token` where each token is a tuple containing a substring from the
     /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType`
     /// that matched the substring.
-    public func tokens(matchedWith characterSets: CharacterSet...) -> [Token] {
+    public func tokens(matchedWith characterSets: CharacterSet...) -> [Match] {
         return tokens(from: characterSets)
     }
     
     /// Returns an array containing substrings from the `String` that have been matched by 
     /// tokenization using one or more character sets.
     public func components(matchedWith characterSets: CharacterSet...) -> [String] {
-        return tokens(from: characterSets).map({ $0.text })
+        return tokens(from: characterSets).map({ $0.token.text })
     }
 }
 

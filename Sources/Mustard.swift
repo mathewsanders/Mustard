@@ -49,20 +49,21 @@ public extension String {
     /// instead.
     ///
     /// Returns: An array of type `TokenizerType.Token`.
-    func tokens<T: DefaultTokenizerType>() -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
+    func tokens<T: DefaultTokenizerType>() -> [(tokenizer: T, token: TokenType)] {
         
         return self.tokens(matchedWith: T.defaultTokenzier).flatMap({
+            
             if let tokenizer = $0.tokenizer as? T {
-                return (tokenizer: tokenizer, text: $0.text, range: $0.range)
+                return (tokenizer: tokenizer, token: $0.token)
             }
             else { return nil }
         })
     }
     
-    func tokens<T: TokenizerType>(matchedWith tokenizers: T...) -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
+    func tokens<T: TokenizerType>(matchedWith tokenizers: T...) -> [(tokenizer: T, token: TokenType)] {
         return self.tokens(from: tokenizers).flatMap({
             if let tokenizer = $0.tokenizer as? T {
-                return (tokenizer: tokenizer, text: $0.text, range: $0.range)
+                return (tokenizer: tokenizer, token: $0.token)
             }
             else { return nil }
         })
@@ -84,16 +85,16 @@ public extension String {
     /// Returns: An array of `Token` where each token is a tuple containing a substring from the 
     /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType` 
     /// that matched the substring.
-    func tokens(matchedWith tokenizers: TokenizerType...) -> [Token] {
+    func tokens(matchedWith tokenizers: TokenizerType...) -> [Match] {
         return tokens(from: tokenizers)
     }
     
-    internal func tokens(from tokenizers: [TokenizerType]) -> [Token] {
+    internal func tokens(from tokenizers: [TokenizerType]) -> [Match] {
         
         guard !tokenizers.isEmpty else { return [] }
         
         let text = self
-        var tokens: [Token] = []
+        var tokens: [Match] = []
         
         var tokenStartIndex = text.unicodeScalars.startIndex
         advanceTokenStart: while tokenStartIndex < text.unicodeScalars.endIndex {
@@ -131,11 +132,9 @@ public extension String {
                         // - advance tokenStartIndex to the currentIndex; and
                         // - continue looking for tokens at new startIndex
                         
-                        tokens.append(
-                            (tokenizer: token.tokenizerForMatch,
-                             text: text[start..<next],
-                             range: start..<next))
-                        
+                        tokens.append((tokenizer: token,
+                                       token: token.makeToken(text: text[start..<next], range: start..<next)))
+                            
                         tokenStartIndex = currentIndex
                         continue advanceTokenStart
                     }
