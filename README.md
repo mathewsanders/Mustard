@@ -1,8 +1,8 @@
 # Mustard 🌭
 
-Mustard is a Swift library for tokenizing strings when splitting by whitespace doesn't cut it.
-
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](https://github.com/mathewsanders/Mustard/blob/master/LICENSE) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-EF5138%20.svg?style=flat)](https://swift.org/package-manager/)
+
+Mustard is a Swift library for tokenizing strings when splitting by whitespace doesn't cut it.
 
 ## Quick start using character sets
 
