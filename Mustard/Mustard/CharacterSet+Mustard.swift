@@ -22,7 +22,7 @@
 
 import Foundation
 
-extension CharacterSet: TokenizerType {
+extension CharacterSet: TokenizerType, DefaultTokenizerType {
     public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
     }

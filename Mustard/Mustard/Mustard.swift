@@ -49,9 +49,18 @@ public extension String {
     /// instead.
     ///
     /// Returns: An array of type `TokenizerType.Token`.
-    func tokens<T: TokenizerType>() -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
+    func tokens<T: DefaultTokenizerType>() -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
         
-        return self.tokens(matchedWith: T()).flatMap({
+        return self.tokens(matchedWith: T.defaultTokenzier).flatMap({
+            if let tokenizer = $0.tokenizer as? T {
+                return (tokenizer: tokenizer, text: $0.text, range: $0.range)
+            }
+            else { return nil }
+        })
+    }
+    
+    func tokens<T: TokenizerType>(matchedWith tokenizers: T...) -> [(tokenizer: T, text: String, range: Range<String.Index>)] {
+        return self.tokens(from: tokenizers).flatMap({
             if let tokenizer = $0.tokenizer as? T {
                 return (tokenizer: tokenizer, text: $0.text, range: $0.range)
             }
