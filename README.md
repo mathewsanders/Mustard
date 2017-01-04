@@ -2,6 +2,8 @@
 
 Mustard is a Swift library for tokenizing strings when splitting by whitespace doesn't cut it.
 
+[![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/mathewsanders/Mustard/blob/master/LICENSE) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+
 ## Quick start using character sets
 
 Foundation includes the `String` method [`components(separatedBy:)`](https://developer.apple.com/reference/swift/string/1690777-components) that allows us to get substrings divided up by certain characters:
