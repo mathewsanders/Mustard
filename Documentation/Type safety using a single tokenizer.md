@@ -1,6 +1,6 @@
 # Type safety using a single tokenizer
 
-When matching with multiple tokenizers, there is no choice but to return an array of `Token` where the tokenizer element is the of the type `TokenizerType`.
+When matching with multiple types of tokenizer, there is no option but for Swift to return an array of `Token` where the tokenizer element has the protocol type `TokenizerType`.
 
 To make use of the `tokenizer` element, you need to either use type casting (using `as?`) or type checking (using `is`) to figure out what type of tokenizer matched the substring.
 
@@ -11,6 +11,7 @@ import Mustard
 
 let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
 // tokens.count -> 5
+// tokens[0].tokenizer -> type is `TokenizerType`
 
 let numberTokens = tokens.filter({ $0.tokenizer is NumberTokenizer })
 // numberTokens.count -> 0
@@ -20,7 +21,27 @@ While it's obvious to us why numberTokens is empty (the string was tokenized usi
 
 This may seem like an obvious error, but it's the type of unexpected bug that can slip in when we're using loosely typed results.
 
-Thankfully, Mustard can return a strongly typed set of matches if a single `TokenizerType` is used:
+Thankfully, Mustard can return a strongly typed set of matches if a single `TokenizerType` is used.
+
+Each `TokenizerType` includes a typealias for a tuple where the tokenizer element is the specific type of tokenizer instead of using the general protocol signature.
+
+For example, the signature for `CharacterSet.Token` is `(tokenizer: CharacterSet, text: String, range: Range<String.Index>)`
+
+Setting `CharacterSet.Token` as the result type allows Mustard to cast the results to the correct type. This allows the complier to give you a warning if you try and attempt something that doesn't make sense:
+
+````Swift
+import Mustard
+
+let tokens: [CharacterSet.Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
+// tokens.count -> 5
+// tokens[0].tokenizer -> type is `TokenizerType`
+
+let numberTokens = tokens.filter({ $0.tokenizer is NumberTokenizer })
+// complier warning: Cast from 'CharacterSet' to unrelated type 'NumberTokenizer' always fails
+// numberTokens.count -> 0
+````
+
+Additionally, if the tokenizer implements the `DefaultTokenizerType` by providing a default initializer `init()` then you get an convenience method for getting tokens using the `tokens()` method:
 
 ````Swift
 import Mustard
@@ -34,8 +55,6 @@ let numberTokens: [NumberTokenizer.Token] = "123Hello world&^45.67".tokens()
 
 ````
 
-Using the `NumberTokenizer.Token` (which Mustard creates for every `TokenizerType`) which has a more specific type signature allows you to also use the shorter `tokens()` method which infers the type of tokenizer to match substrings.
-
 ## Bundling multiple types safely
 
 Achieving type-safety by limiting to a single `TokenizerType` may seem like a strong constraint for practical use, but
@@ -44,7 +63,7 @@ with a little overhead it's possible to create a tokenizer that acts as a lightw
 Here's an example `MixedTokenizer` that acts as a wrapper to existing word, number, and emoji tokenizers:
 
 ````Swift
-enum MixedTokenizer: TokenizerType {
+enum MixedTokenizer: TokenizerType, DefaultTokenizerType {
 
     case word
     case number
