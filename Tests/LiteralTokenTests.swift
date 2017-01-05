@@ -24,7 +24,7 @@ import XCTest
 import Mustard
 
 // implementing as class rather than struct since `canTake(_:)` will have mutating effect.
-class LiteralTokenizer: TokenizerType {
+final class LiteralTokenizer: TokenizerType {
 
     private let target: String
     private var position: String.UnicodeScalarIndex

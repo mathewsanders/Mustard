@@ -27,72 +27,18 @@ public protocol TokenType {
     var range: Range<String.Index> { get }
 }
 
-public struct DefaultToken: TokenType {
+public struct AnyToken: TokenType {
     public let text: String
     public let range: Range<String.Index>
+    public let type: Any
 }
-
-/// Token is a typealias for a tuple with the following named elements:
-/// 
-/// - tokenizer: An instance of `TokenizerType` that matched the token.
-/// - text: A substring that the tokenizer matched in the original string.
-/// - range: The range of the matched text in the original string.
-//public typealias Match = (token: TokenType, tokenizer: TokenizerType)
-
-public struct AnyTokenizer: TokenizerType {
-    
-    private let _tokenizerStartingWith: (UnicodeScalar) -> AnyTokenizer?
-    private let _tokenCanStart: (UnicodeScalar) -> Bool
-    private let _tokenCanTake: (UnicodeScalar) -> Bool
-    private let _tokenIsComplete: () -> Bool
-    private let _completeTokenIsInvalid: (UnicodeScalar?) -> Bool
-    private let _prepareForReuse: () -> ()
-    private let _makeToken: (String, Range<String.Index>) -> TokenType
-    
-    init<Tokenizer: TokenizerType>(_ tokenizer: Tokenizer) where Tokenizer.Token: TokenType {
-        _tokenizerStartingWith = tokenizer.tokenizerStartingWith
-        _tokenCanStart = tokenizer.tokenCanStart
-        _tokenCanTake = tokenizer.tokenCanTake
-        _tokenIsComplete = tokenizer.tokenIsComplete
-        _completeTokenIsInvalid = tokenizer.completeTokenIsInvalid
-        _prepareForReuse = tokenizer.prepareForReuse
-        _makeToken = tokenizer.makeToken
-    }
-    
-    public func tokenizerStartingWith(_ scalar: UnicodeScalar) -> AnyTokenizer? {
-        return _tokenizerStartingWith(scalar)
-    }
-    
-    public func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
-        return _tokenCanStart(scalar)
-    }
-    
-    public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
-        return _tokenCanTake(scalar)
-    }
-    
-    public func tokenIsComplete() -> Bool {
-        return _tokenIsComplete()
-    }
-    
-    public func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool {
-        return _completeTokenIsInvalid(scalar)
-    }
-    
-    public func prepareForReuse() {
-        _prepareForReuse()
-    }
-    
-    func makeToken(text: String, range: Range<String.Index>) -> TokenType {
-        return _makeToken(text, range)
-    }
-}
-
 
 /// Defines the implementation needed to create a tokenizer for use with Mustard.
 public protocol TokenizerType {
     
     associatedtype Token: TokenType
+    
+    func makeToken(text: String, range: Range<String.Index>) -> Token
     
     /// Returns an instance of a tokenizer that starts with the given scalar,
     /// or `nil` if this type can't start with this scalar.
@@ -150,16 +96,56 @@ public protocol TokenizerType {
     /// `tokenCanTake(_:)`
     func prepareForReuse()
     
-    /// Returns an instance of the tokenizer that will be used as the `tokenizer` element in the `Token` tuple.
-    ///
-    /// If the tokenizer implements `NSCopying` protocol, the default implementation returns the result of
-    /// `copy(with: nil)`; otherwise, returns `self` which is suitable for structs.
-    /// 
-    /// Provide an alternate implementation if the tokenizer is a reference type that does not implement `NSCopying`.
-    //var tokenizerForMatch: Self { get }
+}
+
+
+public struct AnyTokenizer: TokenizerType {
     
-    func makeToken(text: String, range: Range<String.Index>) -> Token
+    private let _makeToken: (String, Range<String.Index>) -> TokenType
+    private let _tokenizerStartingWith: (UnicodeScalar) -> AnyTokenizer?
+    private let _tokenCanStart: (UnicodeScalar) -> Bool
+    private let _tokenCanTake: (UnicodeScalar) -> Bool
+    private let _tokenIsComplete: () -> Bool
+    private let _completeTokenIsInvalid: (UnicodeScalar?) -> Bool
+    private let _prepareForReuse: () -> ()
     
+    init<P>(_ tokenizer: P) where P: TokenizerType {
+        _makeToken = tokenizer.makeToken
+        _tokenizerStartingWith = tokenizer.tokenizerStartingWith
+        _tokenCanStart = tokenizer.tokenCanStart
+        _tokenCanTake = tokenizer.tokenCanTake
+        _tokenIsComplete = tokenizer.tokenIsComplete
+        _completeTokenIsInvalid = tokenizer.completeTokenIsInvalid
+        _prepareForReuse = tokenizer.prepareForReuse
+    }
+    
+    public func makeToken(text: String, range: Range<String.Index>) -> TokenType {
+        return _makeToken(text, range)
+    }
+    
+    public func tokenizerStartingWith(_ scalar: UnicodeScalar) -> AnyTokenizer? {
+        return _tokenizerStartingWith(scalar)
+    }
+    
+    public func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
+        return _tokenCanStart(scalar)
+    }
+    
+    public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+        return _tokenCanTake(scalar)
+    }
+    
+    public func tokenIsComplete() -> Bool {
+        return _tokenIsComplete()
+    }
+    
+    public func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool {
+        return _completeTokenIsInvalid(scalar)
+    }
+    
+    public func prepareForReuse() {
+        _prepareForReuse()
+    }
 }
 
 /// Defines the implementation needed for a TokenizerType to have some convenience methods
@@ -178,19 +164,12 @@ extension DefaultTokenizerType {
 
 public extension TokenizerType {
     
-    /// Token is a typealias for a tuple with the following named elements:
-    ///
-    /// - tokenizer: An instance of `Self` that matched the token.
-    /// - text: A substring that the tokenizer matched in the original string.
-    /// - range: The range of the matched text in the original string.
-    //typealias Match = (token: TokenType, tokenizer: Self)
-    
     var anyTokenizer: AnyTokenizer {
         return AnyTokenizer(self)
     }
     
-    func makeToken(text: String, range: Range<String.Index>) -> DefaultToken {
-        return DefaultToken(text: text, range: range)
+    func makeToken(text: String, range: Range<String.Index>) -> AnyToken {
+        return AnyToken(text: text, range: range, type: type(of: self))
     }
     
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
@@ -217,19 +196,4 @@ public extension TokenizerType {
     
     func prepareForReuse() {}
     
-    
-    /// Returns an instance of the tokenizer that will be used as the `tokenizer` element in the `Token` tuple.
-    ///
-    /// If the tokenizer implements `NSCopying` protocol, the default implementation returns the result of
-    /// `copy(with: nil)`; otherwise, returns `self` which is suitable for structs.
-    ///
-    /// Provide an alternate implementation if the tokenizer is a reference type that does not implement `NSCopying`.
-//    var tokenizerForMatch: Self {
-//        if let copying = self as? NSCopying, let aCopy = copying.copy(with: nil) as? Self {
-//            return aCopy
-//        }
-//        else {
-//            return self
-//        }
-//    }
 }

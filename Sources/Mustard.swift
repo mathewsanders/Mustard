@@ -42,13 +42,19 @@ public extension String {
     /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType` 
     /// that matched the substring.
     
-    func tokens<T>(matchedWith tokenizers: AnyTokenizer) -> [T] where T: TokenType {
-        return _tokens(from: [tokenizers]) as? [T] ?? []
+    /*
+    func tokens<P, C>(matchedWith tokenizer: P) -> [C] where P: TokenizerType, C: TokenType, P.Token == C {
+        let results = _tokens(from: [tokenizer.anyTokenizer])
+        return results.flatMap({ $0 as? C })
     }
     
-    func tokens(matchedWith tokenizer: AnyTokenizer) -> [TokenType] {
-        return _tokens(from: [tokenizer])
+    func tokens<P>(matchedWith tokenizer: P) -> [TokenType] where P: TokenizerType {
+        return _tokens(from: [tokenizer.anyTokenizer])
     }
+    
+    func tokens<P, C>(matchedWith tokenizers: [P]) -> [C] where P: TokenizerType, C: TokenType, P.Token == C {
+        return _tokens(from: tokenizers.map({ $0.anyTokenizer })).flatMap({ $0 as? C })
+    }*/
     
     func tokens(matchedWith tokenizers: AnyTokenizer...) -> [TokenType] {
         return _tokens(from: tokenizers)

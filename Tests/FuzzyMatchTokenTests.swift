@@ -28,7 +28,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-class FuzzyLiteralMatch: TokenizerType {
+final class FuzzyLiteralMatch: TokenizerType {
     
     let target: String
     private let exclusions: CharacterSet
@@ -79,7 +79,7 @@ class FuzzyLiteralMatch: TokenizerType {
         position = target.unicodeScalars.index(after: position)
     }
     
-    var tokenIsComplete: Bool {
+    func tokenIsComplete() -> Bool {
         return position == target.unicodeScalars.endIndex
     }
     

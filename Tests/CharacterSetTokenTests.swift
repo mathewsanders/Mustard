@@ -37,19 +37,19 @@ class CharacterSetTokenTests: XCTestCase {
         
         XCTAssert(tokens.count == 5, "Unexpected number of tokens [\(tokens.count)]")
         
-        //XCTAssert(tokens[0].tokenizer == CharacterSet.decimalDigits)
+        XCTAssert(tokens[0].set == CharacterSet.decimalDigits)
         XCTAssert(tokens[0].text == "123")
         
-        //XCTAssert(tokens[1].tokenizer == CharacterSet.letters)
+        XCTAssert(tokens[1].set == CharacterSet.letters)
         XCTAssert(tokens[1].text == "Hello")
         
-        //XCTAssert(tokens[2].tokenizer == CharacterSet.letters)
+        XCTAssert(tokens[2].set == CharacterSet.letters)
         XCTAssert(tokens[2].text == "world")
         
-        //XCTAssert(tokens[3].tokenizer == CharacterSet.decimalDigits)
+        XCTAssert(tokens[3].set == CharacterSet.decimalDigits)
         XCTAssert(tokens[3].text == "45")
         
-        //XCTAssert(tokens[4].tokenizer == CharacterSet.decimalDigits)
+        XCTAssert(tokens[4].set == CharacterSet.decimalDigits)
         XCTAssert(tokens[4].text == "67")
         
     }
