@@ -19,7 +19,6 @@ final class DateTokenizer: TokenizerType, DefaultTokenizerType {
     
     // public property
     
-    // called when we access `DateToken.defaultTokenizer`
     required init() {
         _position = _template.unicodeScalars.startIndex
         _dateText = ""
@@ -41,7 +40,7 @@ final class DateTokenizer: TokenizerType, DefaultTokenizerType {
         
         switch (_template.unicodeScalars[_position], scalar) {
         case ("\u{0030}", CharacterSet.decimalDigits), // match with a decimal digit
-        ("\u{002F}", "\u{002F}"):                 // match with the '/' character
+             ("\u{002F}", "\u{002F}"):                 // match with the '/' character
             
             _position = _template.unicodeScalars.index(after: _position) // increment the template position
             _dateText.unicodeScalars.append(scalar) // add scalar to text matched so far

@@ -6,12 +6,12 @@ This approach limits the ability to distinguish between *cat*, *cta* since they 
 
 `LiteralTokenizer` is a more complex `TokenizerType` that receives a target `String` on initialization, and maintains an internal state of the current position between calls to `tokenCanTake(_:)` to check that each scalar received matches the target string in the current position.
 
-Along with defining `tokenCanTake(_:)`, this tokenizer also provides alternate implementations for `tokenIsComplete`, `completeTokenIsInvalid(:)`, and `prepareForReuse()`.
+Along with defining `tokenCanTake(_:)`, this tokenizer also provides alternate implementations for `tokenIsComplete()`, `completeTokenIsInvalid(:)`, and `prepareForReuse()`.
 
 ````Swift
 
 // implementing as class rather than struct since `tokenCanTake(_:)` will have mutating effect.
-class LiteralTokenizer: TokenizerType {
+final class LiteralTokenizer: TokenizerType {
 
     private let target: String
     private var position: String.UnicodeScalarIndex

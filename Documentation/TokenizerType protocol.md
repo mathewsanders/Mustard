@@ -1,10 +1,10 @@
 # TokenizerType protocol: implementing your own tokenizer
 
-You can create your own tokenizers by implementing the [`TokenizerType`](/Sources/TokenizerType.swift) protocol.
+You can create your own tokenizers by implementing the [`TokenizerType`](/Sources/Mustard.swift) protocol.
 
 Default implementations are provided for all methods except for `tokenCanTake(_:)` which means many implementations may be trivial.
 
-Here's a slimmed down view of the protocol (see [`TokenizerType.swift`](/Sources/TokenizerType.swift) for full documentation).
+Here's a slimmed down view of the protocol (see [`Mustard.swift`](/Sources/Mustard.swift) for full documentation).
 
 ````Swift
 
@@ -26,13 +26,13 @@ public protocol TokenizerType {
     /* default implementations provided  */
 
     // default implementation returns self if `tokenCanStart(with:)` returns true, otherwise nil
-    func token(startingWith scalar: UnicodeScalar) -> TokenizerType?
+    func tokenizerStartingWith(_ scalar: UnicodeScalar) -> AnyTokenizer?
 
     // default implementation returns result of `tokenCanTake(_:)`
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool
 
     // default implementation returns `true`
-    var tokenIsComplete: Bool { get }
+    func tokenIsComplete() -> Bool
 
     // default implementation returns `false`
     func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool
@@ -40,14 +40,20 @@ public protocol TokenizerType {
     // default implementation does nothing
     func prepareForReuse()
 
-    // default implementation returns result of `copy(with: nil)` if the type implements `NSCopying`
-    // otherwise returns `self` (which is suitable for any value types)
-    var tokenizerForMatch: TokenizerType { get }
+    // The type of token associated with this tokenizer
+    associatedtype Token: TokenType
+
+    // Default implementation returns an instance of `AnyToken` which contains the matched text,
+    // the range of the matched text in the original substring, and the type of tokenizer that
+    // found the match.
+    // Provide an alternative implementation of this method if you have a specific `TokenType`
+    // type that you want the tokenizer to return.
+    func makeToken(text: String, range: Range<String.Index>) -> Token
 }
 
 ````
 
-An brief additional protocol `DefaultTokenizerType` can be used for tokenizers that have a default initializer,
+The brief protocol `DefaultTokenizerType` can be used for tokenizers that have a default initializer,
 which provides some useful methods (see [type safety using a single tokenizer](Type safety using a single tokenizer) for more information).
 
 ````Swift
@@ -62,19 +68,30 @@ public protocol DefaultTokenizerType: TokenizerType {
 
 Implementations of tokenizers can range from trivial to complex.
 
-As an example, here's the extension that Mustard provides that allows any `CharacterSet` to act as a tokenizer:
+As an example, here's the extension that Mustard provides that allows any `CharacterSet` to act as a tokenizer by implementing the `tokenCanTake(_:)` method and providing an alternative implementation of `makeToken(text:, range:)` so
+that tokenizer returns a more useful `TokenType`:
 
 ````Swift
 
-extension CharacterSet: TokenizerType, DefaultTokenizerType {
-    public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
+    }
+
+    public struct CharacterSetToken: TokenType {
+        public let text: String
+        public let range: Range<String.Index>
+        public let set: CharacterSet
+    }
+
+    public func makeToken(text: String, range: Range<String.Index>) -> CharacterSetToken {
+        return CharacterSetToken(text: text, range: range, set: self)
     }
 }
 
 ````
 
-Here's a *slightly* more complex example showing a tokenizer that matches words identified by [camel case](https://en.wikipedia.org/wiki/Camel_case):
+Here's another example showing a tokenizer that matches words identified by [camel case](https://en.wikipedia.org/wiki/Camel_case). Here `makeToken(text:, range:)` is not defined so instead Mustard
+will use the type `AnyToken`.
 
 ````Swift
 struct CamelCaseTokenizer: TokenizerType, DefaultTokenizerType {
