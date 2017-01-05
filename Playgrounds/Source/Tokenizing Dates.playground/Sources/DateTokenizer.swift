@@ -14,7 +14,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-public class DateTokenizer: TokenizerType, DefaultTokenizerType {
+final public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     
     // private properties
     private let _template = "00/00/00"
@@ -22,18 +22,20 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     private var _dateText: String
     private var _date: Date?
     
-    // formatters are expensive, so only instantiate once for all DateTokens
-    static let dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yy"
-        return dateFormatter
-    }()
+    // public property
     
-    // called when we access `DateToken.tokenizer`
+    // called when we access `DateToken.defaultTokenizer`
     public required init() {
         _position = _template.unicodeScalars.startIndex
         _dateText = ""
     }
+    
+    // formatters are expensive, so only instantiate once for all DateTokens
+    public static let dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yy"
+        return dateFormatter
+    }()
     
     public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         
@@ -77,10 +79,6 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
         _position = _template.unicodeScalars.startIndex
     }
     
-    // return an instance of tokenizer to return in matching tokens
-    // we return a copy so that the instance keeps reference to the
-    // dateText that has been matched, and the date that was parsed
-
     public struct DateToken: TokenType {
         public let text: String
         public let range: Range<String.Index>
@@ -88,8 +86,6 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     }
     
     public func makeToken(text: String, range: Range<String.Index>) -> DateToken {
-        print("making date token, _date is", _date)
-        return DateToken(text: text, range: range, date: _date ?? Date())
+        return DateToken(text: text, range: range, date: _date!)
     }
-    
 }

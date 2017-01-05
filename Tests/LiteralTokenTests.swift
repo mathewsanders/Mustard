@@ -81,8 +81,8 @@ final class LiteralTokenizer: TokenizerType {
 
 extension String {
     // a convenience to allow us to use `"cat".literalToken` instead of `LiteralToken("cat")`
-    var literalTokenizer: AnyTokenizer {
-        return LiteralTokenizer(target: self).anyTokenizer
+    var literalTokenizer: LiteralTokenizer {
+        return LiteralTokenizer(target: self)
     }
 }
 

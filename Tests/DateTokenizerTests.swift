@@ -81,26 +81,24 @@ final class DateTokenizer: TokenizerType, DefaultTokenizerType {
     }
     
     func makeToken(text: String, range: Range<String.Index>) -> DateToken {
-        print("makking Date token..", text, _date)
         return DateToken(text: text, range: range, date: _date!)
     }
 }
-
 
 class DateTokenizerTests: XCTestCase {
     
     func testDateMatches() {
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        let tokens = messyInput.tokens(matchedWith: DateTokenizer.defaultTokenzier)
+        let tokens = messyInput.tokens(matchedWith: DateTokenizer())
         
         XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         
         XCTAssert(tokens[0].text == "12/01/27")
-        //XCTAssert(tokens[0].date == DateTokenizer.dateFormatter.date(from: tokens[0].text))
+        XCTAssert(tokens[0].date == DateTokenizer.dateFormatter.date(from: tokens[0].text))
         
         XCTAssert(tokens[1].text == "12/02/27")
-        //XCTAssert(tokens[1].date == DateTokenizer.dateFormatter.date(from: tokens[1].text))
+        XCTAssert(tokens[1].date == DateTokenizer.dateFormatter.date(from: tokens[1].text))
         
     }
 }

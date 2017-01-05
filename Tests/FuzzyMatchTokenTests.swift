@@ -94,7 +94,7 @@ class FuzzyMatchTokenTests: XCTestCase {
     func testSpecialFormat() {
         
         let fuzzyTokenzier = FuzzyLiteralMatch(target: "#YF1942B",
-                                               ignoring: CharacterSet.whitespaces.union(.punctuationCharacters)).anyTokenizer
+                                               ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
         let tokens = messyInput.tokens(matchedWith: fuzzyTokenzier)

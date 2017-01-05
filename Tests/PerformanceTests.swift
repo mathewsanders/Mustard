@@ -11,7 +11,7 @@ import Mustard
 
 class PerformanceTests: XCTestCase {
     
-    let iterations = 1
+    let iterations = 10000
     
     let sampleWordsWithSeparatingSpaces = "Sing a song of sixpence, A pocket full of rye. four and twenty blackbirds, Baked in a pie. When the pie was opened The birds began to sing; Wasn't th "
     

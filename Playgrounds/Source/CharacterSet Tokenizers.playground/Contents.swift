@@ -52,6 +52,6 @@ struct NumberTokenizer: TokenizerType {
     }
 }
 
-let customNumberTokens = "10,123hello456.789".tokens(matchedWith: NumberTokenizer().anyTokenizer).map { $0.text }
+let customNumberTokens = "10,123hello456.789".tokens(matchedWith: NumberTokenizer()).map { $0.text }
 customNumberTokens.count // -> 2
 customNumberTokens       // -> ["10,123", "456.789"]
