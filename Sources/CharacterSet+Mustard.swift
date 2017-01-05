@@ -26,6 +26,16 @@ extension CharacterSet: TokenizerType, DefaultTokenizerType {
     public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         return self.contains(scalar)
     }
+    
+    public struct CharacterSetToken: TokenType {
+        public let text: String
+        public let range: Range<String.Index>
+        public let set: CharacterSet
+    }
+    
+    public func makeToken(text: String, range: Range<String.Index>) -> CharacterSetToken {
+        return CharacterSetToken(text: text, range: range, set: self)
+    }
 }
 
 extension String {
@@ -41,21 +51,23 @@ extension String {
     /// Returns: An array of `Token` where each token is a tuple containing a substring from the
     /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType`
     /// that matched the substring.
-    public func tokens(matchedWith characterSets: CharacterSet...) -> [Token] {
-        return tokens(from: characterSets)
+    public func tokens(matchedWith characterSets: CharacterSet...) -> [CharacterSet.Token] {
+        let tokenizers = characterSets.map({ $0.anyTokenizer })
+        
+        let results = _tokens(from: tokenizers)
+        
+        return results as? [CharacterSet.Token] ?? []
     }
     
     /// Returns an array containing substrings from the `String` that have been matched by 
     /// tokenization using one or more character sets.
     public func components(matchedWith characterSets: CharacterSet...) -> [String] {
-        return tokens(from: characterSets).map({ $0.text })
+        let tokenizers = characterSets.map({ $0.anyTokenizer })
+        return _tokens(from: tokenizers).map({ $0.text })
     }
 }
 
 infix operator ~=
-public func ~= (option: CharacterSet, input: TokenizerType) -> Bool {
-    if let characterSet = input as? CharacterSet {
-        return characterSet == option
-    }
-    return false
+public func ~= (option: CharacterSet, input: CharacterSet.Token) -> Bool {
+    return input.set == option
 }

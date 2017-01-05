@@ -24,7 +24,7 @@ import XCTest
 import Mustard
 
 // implementing as class rather than struct since `canTake(_:)` will have mutating effect.
-class LiteralTokenizer: TokenizerType {
+final class LiteralTokenizer: TokenizerType {
 
     private let target: String
     private var position: String.UnicodeScalarIndex
@@ -56,7 +56,7 @@ class LiteralTokenizer: TokenizerType {
     
     // this token is only complete when we've called `canTake(_:)` with the correct sequence
     // of scalars such that `position` has advanced to the endIndex of the target
-    var tokenIsComplete: Bool {
+    func tokenIsComplete() -> Bool {
         return position == target.unicodeScalars.endIndex
     }
     
@@ -91,7 +91,7 @@ class LiteralTokenTests: XCTestCase {
     func testGetCatAndDuck() {
         
         let input = "the cat and the catastrophe duck"
-        let tokens: [LiteralTokenizer.Token] = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
+        let tokens = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
         
         XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         

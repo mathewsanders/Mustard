@@ -28,7 +28,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-class FuzzyLiteralMatch: TokenizerType {
+final class FuzzyLiteralMatch: TokenizerType {
     
     let target: String
     private let exclusions: CharacterSet
@@ -79,7 +79,7 @@ class FuzzyLiteralMatch: TokenizerType {
         position = target.unicodeScalars.index(after: position)
     }
     
-    var tokenIsComplete: Bool {
+    func tokenIsComplete() -> Bool {
         return position == target.unicodeScalars.endIndex
     }
     
@@ -97,7 +97,7 @@ class FuzzyMatchTokenTests: XCTestCase {
                                                ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        let tokens: [FuzzyLiteralMatch.Token] = messyInput.tokens(matchedWith: fuzzyTokenzier)
+        let tokens = messyInput.tokens(matchedWith: fuzzyTokenzier)
         
         XCTAssert(tokens.count == 1, "Unexpected number of tokens [\(tokens.count)]")
         XCTAssert(tokens[0].text == "#YF 1942-b")

@@ -12,11 +12,11 @@ import Mustard
 let message = "Your reservation is confirmed for arrival on 12/01/17 and departure on 12/05/17"
 
 // extract the date tokens from the message
-let dates: [DateTokenizer.Token] = message.tokens()
+let dates = message.tokens(matchedWith: DateTokenizer())
 
 // grab reference to first and second date
-let arrival = dates[0].tokenizer.date
-let departure = dates[1].tokenizer.date
+let arrival = dates[0].date
+let departure = dates[1].date
 
 // print message saying days of arrival and departure
 let dateFormatter = DateFormatter()

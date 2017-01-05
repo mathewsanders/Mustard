@@ -14,7 +14,7 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
     return option.contains(input)
 }
 
-public class DateTokenizer: TokenizerType, DefaultTokenizerType {
+final public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     
     // private properties
     private let _template = "00/00/00"
@@ -23,22 +23,19 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     private var _date: Date?
     
     // public property
-    public var date: Date {
-        return _date!
-    }
     
-    // formatters are expensive, so only instantiate once for all DateTokens
-    static let dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yy"
-        return dateFormatter
-    }()
-    
-    // called when we access `DateToken.tokenizer`
+    // called when we access `DateToken.defaultTokenizer`
     public required init() {
         _position = _template.unicodeScalars.startIndex
         _dateText = ""
     }
+    
+    // formatters are expensive, so only instantiate once for all DateTokens
+    public static let dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yy"
+        return dateFormatter
+    }()
     
     public func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
         
@@ -60,7 +57,7 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
         }
     }
     
-    public var tokenIsComplete: Bool {
+    public func tokenIsComplete() -> Bool {
         if _position == _template.unicodeScalars.endIndex,
             let date = DateTokenizer.dateFormatter.date(from: _dateText) {
             // we've reached the end of the template
@@ -82,17 +79,13 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
         _position = _template.unicodeScalars.startIndex
     }
     
-    // return an instance of tokenizer to return in matching tokens
-    // we return a copy so that the instance keeps reference to the
-    // dateText that has been matched, and the date that was parsed
-    public var tokenizerForMatch: TokenizerType {
-        return DateTokenizer(text: _dateText, date: _date)
+    public struct DateToken: TokenType {
+        public let text: String
+        public let range: Range<String.Index>
+        public let date: Date
     }
     
-    // only used by `tokenizerForMatch`
-    private init(text: String, date: Date?) {
-        _dateText = text
-        _date = date
-        _position = text.unicodeScalars.startIndex
+    public func makeToken(text: String, range: Range<String.Index>) -> DateToken {
+        return DateToken(text: text, range: range, date: _date!)
     }
 }

@@ -54,16 +54,16 @@ class CustomTokenTests: XCTestCase {
         
         XCTAssert(tokens.count == 4, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(tokens[0].tokenizer is NumberTokenizer)
+        XCTAssert(tokens[0] is NumberTokenizer.Token)
         XCTAssert(tokens[0].text == "123")
         
-        XCTAssert(tokens[1].tokenizer is WordTokenizer)
+        XCTAssert(tokens[1] is WordTokenizer.Token)
         XCTAssert(tokens[1].text == "Hello")
         
-        XCTAssert(tokens[2].tokenizer is WordTokenizer)
+        XCTAssert(tokens[2] is WordTokenizer.Token)
         XCTAssert(tokens[2].text == "world")
         
-        XCTAssert(tokens[3].tokenizer is NumberTokenizer)
+        XCTAssert(tokens[3] is NumberTokenizer.Token)
         XCTAssert(tokens[3].text == "45.67")
     }
 }

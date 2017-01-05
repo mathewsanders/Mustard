@@ -20,10 +20,12 @@ let words = str.components(matchedWith: .letters)
 //: ## Example 2
 //: Match with decimals digits or letters
 
-let tokens: [CharacterSet.Token] = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
+
+let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letters)
 
 for token in tokens {
-    switch token.tokenizer {
+    
+    switch token.set {
     case CharacterSet.decimalDigits:
         print("- digits:", token.text)
     case CharacterSet.letters:
@@ -35,7 +37,7 @@ for token in tokens {
 // Pull the decimal tokens out by themselves.
 
 let numberTokens = tokens
-    .filter { $0.tokenizer == .decimalDigits }
+    .filter { $0.set == .decimalDigits }
     .map { $0.text }
 
 numberTokens.count  // -> 3
