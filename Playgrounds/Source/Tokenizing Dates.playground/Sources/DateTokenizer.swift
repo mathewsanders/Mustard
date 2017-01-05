@@ -22,11 +22,6 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     private var _dateText: String
     private var _date: Date?
     
-    // public property
-    public var date: Date {
-        return _date!
-    }
-    
     // formatters are expensive, so only instantiate once for all DateTokens
     static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -60,7 +55,7 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
         }
     }
     
-    public var tokenIsComplete: Bool {
+    public func tokenIsComplete() -> Bool {
         if _position == _template.unicodeScalars.endIndex,
             let date = DateTokenizer.dateFormatter.date(from: _dateText) {
             // we've reached the end of the template
@@ -85,14 +80,16 @@ public class DateTokenizer: TokenizerType, DefaultTokenizerType {
     // return an instance of tokenizer to return in matching tokens
     // we return a copy so that the instance keeps reference to the
     // dateText that has been matched, and the date that was parsed
-    public var tokenizerForMatch: TokenizerType {
-        return DateTokenizer(text: _dateText, date: _date)
+
+    public struct DateToken: TokenType {
+        public let text: String
+        public let range: Range<String.Index>
+        public let date: Date
     }
     
-    // only used by `tokenizerForMatch`
-    private init(text: String, date: Date?) {
-        _dateText = text
-        _date = date
-        _position = text.unicodeScalars.startIndex
+    public func makeToken(text: String, range: Range<String.Index>) -> DateToken {
+        print("making date token, _date is", _date)
+        return DateToken(text: text, range: range, date: _date ?? Date())
     }
+    
 }

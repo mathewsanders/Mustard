@@ -80,7 +80,7 @@ class EmojiTokenTests: XCTestCase {
         // -> 7 (4 base, combied with 3 zero-width joiners \u{200D})
         
         let sample = "baby:👶 baby:👶🏿 flag:🇳🇿 flag:🏳️‍🌈 family:👩‍👩‍👦‍👦"
-        let tokens: [EmojiTokenizer.Token] = sample.tokens()
+        let tokens = sample.tokens(matchedWith: EmojiTokenizer.defaultTokenzier)
         
         XCTAssert(tokens.count == 5, "Unexpected number of tokens [\(tokens.count)]")
         

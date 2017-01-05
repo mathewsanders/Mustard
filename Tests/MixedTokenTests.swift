@@ -48,16 +48,16 @@ enum MixedTokenizer: TokenizerType, DefaultTokenizerType {
         }
     }
     
-    func token(startingWith scalar: UnicodeScalar) -> TokenizerType? {
+    func tokenizerStartingWith(_ scalar: UnicodeScalar) -> AnyTokenizer? {
         
-        if let _ = MixedTokenizer.wordTokenizer.token(startingWith: scalar) {
-            return MixedTokenizer.word
+        if let _ = MixedTokenizer.wordTokenizer.tokenizerStartingWith(scalar) {
+            return MixedTokenizer.word.anyTokenizer
         }
-        else if let _ = MixedTokenizer.numberTokenizer.token(startingWith: scalar) {
-            return MixedTokenizer.number
+        else if let _ = MixedTokenizer.numberTokenizer.tokenizerStartingWith(scalar) {
+            return MixedTokenizer.number.anyTokenizer
         }
-        else if let _ = MixedTokenizer.emojiTokenizer.token(startingWith: scalar) {
-            return MixedTokenizer.emoji
+        else if let _ = MixedTokenizer.emojiTokenizer.tokenizerStartingWith(scalar) {
+            return MixedTokenizer.emoji.anyTokenizer
         }
         else {
             return nil
@@ -69,32 +69,32 @@ class MixedTokenTests: XCTestCase {
     
     func testMixedTokens() {
         
-        let tokens: [MixedTokenizer.Token] = "123👩‍👩‍👦‍👦Hello world👶again👶🏿45.67".tokens()
+        let tokens = "123👩‍👩‍👦‍👦Hello world👶again👶🏿45.67".tokens(matchedWith: MixedTokenizer.defaultTokenzier)
         
         XCTAssert(tokens.count == 8, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(tokens[0].tokenizer == .number)
+        //XCTAssert(tokens[0].tokenizer == .number)
         XCTAssert(tokens[0].text == "123")
         
-        XCTAssert(tokens[1].tokenizer == .emoji)
+        //XCTAssert(tokens[1].tokenizer == .emoji)
         XCTAssert(tokens[1].text == "👩‍👩‍👦‍👦")
         
-        XCTAssert(tokens[2].tokenizer == .word)
+        //XCTAssert(tokens[2].tokenizer == .word)
         XCTAssert(tokens[2].text == "Hello")
         
-        XCTAssert(tokens[3].tokenizer == .word)
+        //XCTAssert(tokens[3].tokenizer == .word)
         XCTAssert(tokens[3].text == "world")
     
-        XCTAssert(tokens[4].tokenizer == .emoji)
+        //XCTAssert(tokens[4].tokenizer == .emoji)
         XCTAssert(tokens[4].text == "👶")
         
-        XCTAssert(tokens[5].tokenizer == .word)
+        //XCTAssert(tokens[5].tokenizer == .word)
         XCTAssert(tokens[5].text == "again")
         
-        XCTAssert(tokens[6].tokenizer == .emoji)
+        //XCTAssert(tokens[6].tokenizer == .emoji)
         XCTAssert(tokens[6].text == "👶🏿")
         
-        XCTAssert(tokens[7].tokenizer == .number)
+        //XCTAssert(tokens[7].tokenizer == .number)
         XCTAssert(tokens[7].text == "45.67")
         
     }

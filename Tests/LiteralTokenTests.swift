@@ -56,7 +56,7 @@ class LiteralTokenizer: TokenizerType {
     
     // this token is only complete when we've called `canTake(_:)` with the correct sequence
     // of scalars such that `position` has advanced to the endIndex of the target
-    var tokenIsComplete: Bool {
+    func tokenIsComplete() -> Bool {
         return position == target.unicodeScalars.endIndex
     }
     
@@ -81,8 +81,8 @@ class LiteralTokenizer: TokenizerType {
 
 extension String {
     // a convenience to allow us to use `"cat".literalToken` instead of `LiteralToken("cat")`
-    var literalTokenizer: LiteralTokenizer {
-        return LiteralTokenizer(target: self)
+    var literalTokenizer: AnyTokenizer {
+        return LiteralTokenizer(target: self).anyTokenizer
     }
 }
 
@@ -91,7 +91,7 @@ class LiteralTokenTests: XCTestCase {
     func testGetCatAndDuck() {
         
         let input = "the cat and the catastrophe duck"
-        let tokens: [LiteralTokenizer.Token] = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
+        let tokens = input.tokens(matchedWith: "cat".literalTokenizer, "duck".literalTokenizer)
         
         XCTAssert(tokens.count == 2, "Unexpected number of tokens [\(tokens.count)]")
         

@@ -94,10 +94,10 @@ class FuzzyMatchTokenTests: XCTestCase {
     func testSpecialFormat() {
         
         let fuzzyTokenzier = FuzzyLiteralMatch(target: "#YF1942B",
-                                               ignoring: CharacterSet.whitespaces.union(.punctuationCharacters))
+                                               ignoring: CharacterSet.whitespaces.union(.punctuationCharacters)).anyTokenizer
         
         let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/02/27 (Arrived) ref: 99/99/99"
-        let tokens: [FuzzyLiteralMatch.Token] = messyInput.tokens(matchedWith: fuzzyTokenzier)
+        let tokens = messyInput.tokens(matchedWith: fuzzyTokenzier)
         
         XCTAssert(tokens.count == 1, "Unexpected number of tokens [\(tokens.count)]")
         XCTAssert(tokens[0].text == "#YF 1942-b")
