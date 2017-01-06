@@ -32,10 +32,10 @@ class FallbackTokenizerTests: XCTestCase {
         
         XCTAssert(tokens.count == 6, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(tokens[0] is NumberTokenizer.Token)
+        XCTAssert(tokens[0] is AnyToken)
         XCTAssert(tokens[0].text == "1.2")
         
-        XCTAssert(tokens[1] is NumberTokenizer.Token)
+        XCTAssert(tokens[1] is AnyToken)
         XCTAssert(tokens[1].text == "34")
         
         XCTAssert(tokens[2] is CharacterSet.Token)
@@ -44,10 +44,10 @@ class FallbackTokenizerTests: XCTestCase {
         XCTAssert(tokens[3] is CharacterSet.Token)
         XCTAssert(tokens[3].text == "catastrophe")
         
-        XCTAssert(tokens[4] is LiteralTokenizer.Token)
+        XCTAssert(tokens[4] is AnyToken)
         XCTAssert(tokens[4].text == "cat")
         
-        XCTAssert(tokens[5] is NumberTokenizer.Token)
+        XCTAssert(tokens[5] is AnyToken)
         XCTAssert(tokens[5].text == "0.5")
     }
 }

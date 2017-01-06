@@ -50,20 +50,22 @@ class CustomTokenTests: XCTestCase {
     
     func testNumberToken() {
         
-        let tokens = "123Hello world&^45.67".tokens(matchedWith: NumberTokenizer.defaultTokenzier, WordTokenizer.defaultTokenzier)
+        let tokens: [AnyToken] = "123Hello world&^45.67".tokens(matchedWith: NumberTokenizer.defaultTokenzier, WordTokenizer.defaultTokenzier)
         
         XCTAssert(tokens.count == 4, "Unexpected number of tokens [\(tokens.count)]")
         
-        XCTAssert(tokens[0] is NumberTokenizer.Token)
-        XCTAssert(tokens[0].text == "123")
+        XCTAssertFalse(tokens[0].tokenizerType is WordTokenizer.Type)
+        XCTAssertTrue(tokens[0].tokenizerType is NumberTokenizer.Type)
+        XCTAssertTrue(tokens[0].text == "123")
         
-        XCTAssert(tokens[1] is WordTokenizer.Token)
-        XCTAssert(tokens[1].text == "Hello")
+        XCTAssertFalse(tokens[1].tokenizerType is NumberTokenizer.Type)
+        XCTAssertTrue(tokens[1].tokenizerType is WordTokenizer.Type)
+        XCTAssertTrue(tokens[1].text == "Hello")
         
-        XCTAssert(tokens[2] is WordTokenizer.Token)
-        XCTAssert(tokens[2].text == "world")
+        XCTAssertTrue(tokens[2].tokenizerType is WordTokenizer.Type)
+        XCTAssertTrue(tokens[2].text == "world")
         
-        XCTAssert(tokens[3] is NumberTokenizer.Token)
-        XCTAssert(tokens[3].text == "45.67")
+        XCTAssertTrue(tokens[3].tokenizerType is NumberTokenizer.Type)
+        XCTAssertTrue(tokens[3].text == "45.67")
     }
 }
