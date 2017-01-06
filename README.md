@@ -103,7 +103,39 @@ for token in tokens {
 // digits are: 123
 ````
 
-Tokenizers that don't define a custom `TokenType` will have the general type `AnyToken`.
+Tokenizers that don't define a custom token type will have the general type `AnyToken` which along with exposing the `text` and `range` of the substring matched, also exposes a `tokenizerType` property which can be used to distinguish between `AnyToken` tokens produced by different tokenizers.
+
+````Swift
+
+// Here `ThreeLetterWord` and `FourLetterWord` are both tokenizers that don't define a custom token type, so both return `AnyToken`
+
+let tokens: [AnyToken] = "one two three four five six seven 8 9 10"
+        .tokens(matchedWith: ThreeLetterWord.defaultTokenzier, FourLetterWord.defaultTokenzier)
+
+for token in tokens {
+
+    // Here we switch on `token.tokenizerType` to check what tokenizer made the token
+    // and use this to control the message that's printed
+    switch token.tokenizerType {
+
+    case is ThreeLetterWord.Type:
+        print("3 letters:", token.text)
+
+    case is FourLetterWord.Type:
+        print("4 letters:", token.text)
+
+    default:
+        break
+    }
+}
+// prints ->
+// 3 letters: one
+// 3 letters: two
+// 4 letters: four
+// 4 letters: five
+// 3 letters: six
+
+````
 
 ## Documentation & Examples
 
