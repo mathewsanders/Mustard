@@ -88,7 +88,6 @@ final class FuzzyLiteralMatch: TokenizerType {
     }
 }
 
-
 class FuzzyMatchTokenTests: XCTestCase {
     
     func testSpecialFormat() {
@@ -103,5 +102,3 @@ class FuzzyMatchTokenTests: XCTestCase {
         XCTAssert(tokens[0].text == "#YF 1942-b")
     }
 }
-
-

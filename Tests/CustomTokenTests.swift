@@ -67,4 +67,3 @@ class CustomTokenTests: XCTestCase {
         XCTAssert(tokens[3].text == "45.67")
     }
 }
-

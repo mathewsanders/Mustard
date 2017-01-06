@@ -25,7 +25,6 @@ import Mustard
 
 infix operator ==
 fileprivate func == (option: CharacterSet.Token, input: CharacterSet) -> Bool {
-    
     return input == option.set
 }
 

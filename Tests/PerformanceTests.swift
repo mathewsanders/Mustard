@@ -147,7 +147,6 @@ class PerformanceTests: XCTestCase {
     
     let sampleWordsAndNumbers = "zero0one1two2three3four4five5six6seven7eight8nine9ten10eleven11twelve12thirteen13fourteen14fifteen15sixteen16seventeeen17eigthteen18nineteen19twenty20"
     
-
     func testPerformance_NumbersAndWords_Mustard() {
         
         let check = self.sampleWordsAndNumbers.components(matchedWith: CharacterSet.letters, CharacterSet.decimalDigits)
@@ -216,11 +215,7 @@ class PerformanceTests: XCTestCase {
             }
         }
     }
-    
-    
 }
-
-
 
 // Scanner extensions
 extension Scanner {
@@ -258,7 +253,6 @@ extension Scanner {
         return nil
     }
 }
-
 
 // Extensions to help using regular expressions via http://nshipster.com/nsregularexpression/
 extension String {

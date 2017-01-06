@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
 import Swift
 
 /// Defines requirements for a token
@@ -112,7 +111,6 @@ public protocol TokenizerType {
     func prepareForReuse()
     
 }
-
 
 public struct AnyTokenizer: TokenizerType {
     
@@ -213,10 +211,7 @@ public extension TokenizerType {
     
 }
 
-
-
 public extension String {
-    
     
     /// Returns an array of tokens in the `String` matched using one or more tokenizers of
     /// the same type.
@@ -266,16 +261,16 @@ public extension String {
         advanceTokenStart: while tokenStartIndex < text.unicodeScalars.endIndex {
             
             // prepare a backlog of tokens that can start with the current scalar
-            let possibleTokenizerss = tokenizers.flatMap({ tokenizer -> AnyTokenizer? in
+            let possibleTokenizers = tokenizers.flatMap({ tokenizer -> AnyTokenizer? in
                 tokenizer.prepareForReuse()
                 return tokenizer.tokenizerStartingWith(text.unicodeScalars[tokenStartIndex])
             })
             
-            var tokenizerIndex = possibleTokenizerss.startIndex
-            attemptToken: while tokenizerIndex < possibleTokenizerss.endIndex {
+            var tokenizerIndex = possibleTokenizers.startIndex
+            attemptToken: while tokenizerIndex < possibleTokenizers.endIndex {
                 
                 // get a token from the backlog of potential tokens
-                let tokenizer = possibleTokenizerss[tokenizerIndex]
+                let tokenizer = possibleTokenizers[tokenizerIndex]
                 
                 var tokenEndIndex = tokenStartIndex
                 while tokenEndIndex < text.unicodeScalars.endIndex {
@@ -308,7 +303,7 @@ public extension String {
                         // - tokenStartIndex remains unchanged
                         // - advance the token index
                         // - attempt to match with next token
-                        tokenizerIndex = possibleTokenizerss.index(after: tokenizerIndex)
+                        tokenizerIndex = possibleTokenizers.index(after: tokenizerIndex)
                         continue attemptToken
                     }
                 }

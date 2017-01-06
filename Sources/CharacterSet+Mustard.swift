@@ -52,11 +52,7 @@ extension String {
     /// `String`, the range of the substring in the `String`, and an instance of `TokenizerType`
     /// that matched the substring.
     public func tokens(matchedWith characterSets: CharacterSet...) -> [CharacterSet.Token] {
-        let tokenizers = characterSets.map({ $0.anyTokenizer })
-        
-        let results = _tokens(from: tokenizers)
-        
-        return results as? [CharacterSet.Token] ?? []
+        return _tokens(from: characterSets.map({ $0.anyTokenizer })) as? [CharacterSet.Token] ?? []
     }
     
     /// Returns an array containing substrings from the `String` that have been matched by 

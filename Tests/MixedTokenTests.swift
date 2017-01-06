@@ -80,7 +80,6 @@ final class MixedTokenizer: TokenizerType, DefaultTokenizerType {
     func makeToken(text: String, range: Range<String.Index>) -> MixedToken {
         return MixedToken(text: text, range: range, mode: mode)
     }
-    
 }
 
 class MixedTokenTests: XCTestCase {
