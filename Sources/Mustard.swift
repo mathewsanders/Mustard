@@ -36,7 +36,13 @@ public struct AnyToken: TokenType {
     public let range: Range<String.Index>
     
     /// The type of tokenzier that matched this token.
-    public let type: Any
+    public let tokenizerType: Any
+}
+
+infix operator ~=
+public func ~= <P: TokenizerType>(Tokenizer: P.Type, anyToken: AnyToken) -> Bool {
+    guard let anyTokenTokenizerType = anyToken.tokenizerType as? P.Type else { return false }
+    return anyTokenTokenizerType == Tokenizer
 }
 
 /// Defines the implementation needed to create a tokenizer for use with Mustard.
@@ -91,7 +97,7 @@ public protocol TokenizerType {
     
     /// Checks if a complete token should be discarded given the context of the first scalar following this token.
     ///
-    /// The default implementation of this method performs always returns `false`.
+    /// The default implementation of this method returns `false`.
     ///
     /// Provide an alternate implementation to return `true` in situations where a token can not be followed
     /// by certain scalars.
@@ -101,6 +107,15 @@ public protocol TokenizerType {
     ///
     /// - Returns: `true` if the token is invalid with the following scalar; otherwise, false.
     func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool
+    
+    /// Checks if the tokenzier requests for Mustard to prevent further matches on a substring range when
+    /// a token is invalid.
+    ///
+    /// Returning false allows other tokenizers to potentially make a match from the range of the invalid token.
+    /// Returning true is faster allowing Mustard to jump ahead in the string.
+    ///
+    /// The default implementation of this method returns false.
+    func advanceIfCompleteTokenIsInvalid() -> Bool
     
     /// Ask the tokenizer to prepare itself to start matching a new series of scalars.
     ///
@@ -121,6 +136,7 @@ public struct AnyTokenizer: TokenizerType {
     private let _tokenIsComplete: () -> Bool
     private let _completeTokenIsInvalid: (UnicodeScalar?) -> Bool
     private let _prepareForReuse: () -> ()
+    private let _advanceIfCompleteTokenIsInvalid: () -> Bool
     
     init<P>(_ tokenizer: P) where P: TokenizerType {
         _makeToken = tokenizer.makeToken
@@ -130,6 +146,7 @@ public struct AnyTokenizer: TokenizerType {
         _tokenIsComplete = tokenizer.tokenIsComplete
         _completeTokenIsInvalid = tokenizer.completeTokenIsInvalid
         _prepareForReuse = tokenizer.prepareForReuse
+        _advanceIfCompleteTokenIsInvalid = tokenizer.advanceIfCompleteTokenIsInvalid
     }
     
     public func makeToken(text: String, range: Range<String.Index>) -> TokenType {
@@ -159,6 +176,10 @@ public struct AnyTokenizer: TokenizerType {
     public func prepareForReuse() {
         _prepareForReuse()
     }
+    
+    public func advanceIfCompleteTokenIsInvalid() -> Bool {
+        return _advanceIfCompleteTokenIsInvalid()
+    }
 }
 
 /// Defines the implementation needed for a TokenizerType to have some convenience methods
@@ -172,7 +193,9 @@ public protocol DefaultTokenizerType: TokenizerType {
 extension DefaultTokenizerType {
     /// The default tokenzier for this type.
     /// This is equivilent to using the default initalizer `init()`.
-    public static var defaultTokenzier: AnyTokenizer { return Self().anyTokenizer }
+    public static var defaultTokenzier: AnyTokenizer {
+        return Self().anyTokenizer
+    }
 }
 
 public extension TokenizerType {
@@ -182,7 +205,7 @@ public extension TokenizerType {
     }
     
     func makeToken(text: String, range: Range<String.Index>) -> AnyToken {
-        return AnyToken(text: text, range: range, type: type(of: self))
+        return AnyToken(text: text, range: range, tokenizerType: type(of: self))
     }
     
     func tokenCanStart(with scalar: UnicodeScalar) -> Bool {
@@ -207,11 +230,17 @@ public extension TokenizerType {
         return tokenCanStart(with: scalar) ? self.anyTokenizer : nil
     }
     
+    func advanceIfCompleteTokenIsInvalid() -> Bool {
+        return false
+    }
+    
     func prepareForReuse() {}
     
 }
 
 public extension String {
+    
+    // MARK: - Matches using multiple tokenizers
     
     /// Returns an array of tokens in the `String` matched using one or more tokenizers of
     /// the same type.
@@ -228,8 +257,8 @@ public extension String {
     ///
     /// Returns: An array of `Token` where each token is the type `Tokenizer.Token`.
     func tokens<Tokenizer, Token>(matchedWith tokenizers: Tokenizer...) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
-        let results = _tokens(from: tokenizers.map({ $0.anyTokenizer }))
-        return results.flatMap({ $0 as? Token })
+        
+        return _tokens(from: tokenizers.map({ $0.anyTokenizer })) as! [Token]
     }
     
     /// Returns an array of tokens in the `String` matched using one or more tokenizers of
@@ -248,6 +277,12 @@ public extension String {
     /// Returns: An array of `TokenType`.
     func tokens(matchedWith anyTokenizers: AnyTokenizer...) -> [TokenType] {
         return _tokens(from: anyTokenizers)
+    }
+    
+    /// Returns an array containing substrings from the `String` that have been matched by
+    /// tokenization using one or more character sets.
+    public func components<Tokenizer>(matchedWith tokenizers: Tokenizer...) -> [String] where Tokenizer: TokenizerType {
+        return _tokens(from: tokenizers.map({ $0.anyTokenizer })).map({ $0.text })
     }
     
     internal func _tokens(from tokenizers: [AnyTokenizer]) -> [TokenType]  {
@@ -298,11 +333,16 @@ public extension String {
                         tokenStartIndex = currentIndex
                         continue advanceTokenStart
                     }
-                    else {
+                    else if tokenizer.advanceIfCompleteTokenIsInvalid() {
                         // the token was not complete, or was invalid given the next scalar:
                         // - tokenStartIndex remains unchanged
                         // - advance the token index
                         // - attempt to match with next token
+                        
+                        tokenStartIndex = currentIndex
+                        continue advanceTokenStart
+                    }
+                    else {
                         tokenizerIndex = possibleTokenizers.index(after: tokenizerIndex)
                         continue attemptToken
                     }
@@ -316,4 +356,92 @@ public extension String {
         
         return tokens
     }
+    
+    
+    // MARK: - Optimizations for single tokenizer
+    
+    func tokens<Tokenizer, Token>(matchedWith tokenizer: Tokenizer, advanceWhenCompleteTokenIsInvalid: Bool) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+        return _tokens(from: tokenizer, advanceWhenCompleteTokenIsInvalid)
+    }
+    
+    func tokens<Tokenizer, Token>(matchedWith tokenizer: Tokenizer) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+        return _tokens(from: tokenizer)
+    }
+    
+    public func components<Tokenizer>(matchedWith tokenizer: Tokenizer) -> [String] where Tokenizer: TokenizerType {
+        return _tokens(from: tokenizer).map({ $0.text })
+    }
+    
+    internal func _tokens<Tokenizer, Token>(from singleTokenizer: Tokenizer, _ advanceWhenCompleteTokenIsInvalid: Bool = false) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+        
+        let text = self
+        var tokens: [Token] = []
+        
+        var tokenizer = singleTokenizer.anyTokenizer
+        
+        var tokenStartIndex = text.unicodeScalars.startIndex
+        advanceTokenStart: while tokenStartIndex < text.unicodeScalars.endIndex {
+            
+            tokenizer.prepareForReuse()
+            
+            guard let newTokenzier = tokenizer.tokenizerStartingWith(text.unicodeScalars[tokenStartIndex]) else {
+            
+                tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
+                continue advanceTokenStart
+            }
+            
+            tokenizer = newTokenzier
+                
+            var tokenEndIndex = tokenStartIndex
+            while tokenEndIndex < text.unicodeScalars.endIndex {
+                
+                // get the scalar at the next position (or nil if we're at the end of the text)
+                let currentIndex = text.unicodeScalars.index(after: tokenEndIndex)
+                let scalar = (currentIndex == text.unicodeScalars.endIndex) ? nil : text.unicodeScalars[currentIndex]
+                
+                if let scalar = scalar, tokenizer.tokenCanTake(scalar) {
+                    // the scalar is not nil, and the token can take the scalar:
+                    // - expand tokenEndIndex one position
+                    tokenEndIndex = text.unicodeScalars.index(after: tokenEndIndex)
+                }
+                else if tokenizer.tokenIsComplete(), tokenizer.tokenIsValid(whenNextScalarIs: scalar),
+                    let start = tokenStartIndex.samePosition(in: text),
+                    let next = currentIndex.samePosition(in: text) {
+                    // the scalar is either nil, or the token can not take it; and
+                    // the token is complete, and is valid with context of next scalar/nil:
+                    // - append tokenzier, text, and range to matches;
+                    // - advance tokenStartIndex to the currentIndex; and
+                    // - continue looking for tokens at new startIndex
+                    
+                    tokens.append(tokenizer.makeToken(text: text[start..<next], range: start..<next) as! Token)
+                    
+                    tokenStartIndex = currentIndex
+                    continue advanceTokenStart
+                }
+                else if advanceWhenCompleteTokenIsInvalid || tokenizer.advanceIfCompleteTokenIsInvalid() {
+                    tokenStartIndex = currentIndex
+                    continue advanceTokenStart
+                    
+                } else {
+                    // the token was not complete, or was invalid given the next scalar:
+                    // - tokenStartIndex remains unchanged
+                    // - advance the token index
+                    // - attempt to match with next token
+                    
+                    //print("case #1 advancing tokenStartIndex ")
+                    tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
+                    
+                    continue advanceTokenStart
+                }
+            }
+            
+            // token has reached the end of the text
+            // advance the tokenStartIndex to attempt match at next scalar
+            //print("case #2 advancing tokenStartIndex ")
+            tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
+        }
+        
+        return tokens
+    }
+    
 }
