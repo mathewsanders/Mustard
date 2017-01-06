@@ -62,7 +62,7 @@ Mustard matching with DatePatternTokenizer               4.579 sec 4% STDEV
 Mustard matching with DateTokenizer                      6.694 sec 3% STDEV
 ````
 
-#### Notes 
+#### Notes
 
-- <sup>1</sup>Actually 30 for scanner up to white space because it captures `Wasn't` as a single substring.
-- <sup>2</sup>Actually 5 for `DateTokenizer` because it excludes `01/55/99` as not a valid date.
+- 1: Actually 30 for scanner up to white space because it captures `Wasn't` as a single substring.
+- 2: Actually 5 for `DateTokenizer` because it excludes `01/55/99` as not a valid date.
