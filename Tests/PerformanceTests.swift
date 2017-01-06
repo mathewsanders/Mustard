@@ -215,6 +215,118 @@ class PerformanceTests: XCTestCase {
             }
         }
     }
+    
+    //
+    
+    let sampleDates = "Ref 01/55/99 Check in at 03/29/17, departure at 04/12/17, you have dinner reservations on 04/01/17, lunch on 04/02/17 and a show on night of 04/03/12."
+    
+    func _datesUsingRegularExpression(from text: String) -> [String] {
+        
+        let pattern = "[0-9]{2}/[0-9]{2}/[0-9]{2}" // match 00/00/00
+        let formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
+        let matches = formatter.matches(in: text, options: [], range: text.nsrange)
+        
+        return matches.map { match in
+            text.substring(with: match.rangeAt(0))!
+        }
+    }
+    
+    func testPerformance_Dates_RegularExpression() {
+        
+        let check = _datesUsingRegularExpression(from: sampleDates)
+        XCTAssert(check.count == 6, "unexpected number of matches \(check.count)")
+        XCTAssert(check[0] == "01/55/99")
+        
+        self.measure {
+            for _ in 0..<self.iterations {
+                _ = self._datesUsingRegularExpression(from: self.sampleDates)
+            }
+        }
+    }
+    
+    func testPerformance_Dates_Mustard() {
+        
+        let check = sampleDates.tokens(matchedWith: DateTokenizer())
+        XCTAssert(check.count == 5, "unexpected number of matches \(check.count)")
+        XCTAssert(check[0].text == "03/29/17")
+        
+        self.measure {
+            for _ in 0..<self.iterations {
+                _ = self.sampleDates.tokens(matchedWith: DateTokenizer())
+            }
+        }
+    }
+    
+    func testPerformance_DatesPattern_Mustard() {
+        
+        let check = sampleDates.tokens(matchedWith: DatePatternTokenizer())
+        XCTAssert(check.count == 6, "unexpected number of matches \(check.count)")
+        XCTAssert(check[0].text == "01/55/99")
+        
+        self.measure {
+            for _ in 0..<self.iterations {
+                _ = self.sampleDates.tokens(matchedWith: DatePatternTokenizer())
+            }
+        }
+    }
+}
+
+final class DatePatternTokenizer: TokenizerType, DefaultTokenizerType {
+    
+    private let _template = "00/00/00"
+    private var _position: String.UnicodeScalarIndex
+    private var _dateText: String
+    
+    required init() {
+        _position = _template.unicodeScalars.startIndex
+        _dateText = ""
+    }
+    
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+        
+        guard _position < _template.unicodeScalars.endIndex else {
+            // we've matched all of the template
+            return false
+        }
+        
+        switch (_template.unicodeScalars[_position], scalar) {
+        case ("\u{0030}", CharacterSet.decimalDigits), // match with a decimal digit
+        ("\u{002F}", "\u{002F}"):                 // match with the '/' character
+            
+            _position = _template.unicodeScalars.index(after: _position) // increment the template position
+            _dateText.unicodeScalars.append(scalar) // add scalar to text matched so far
+            return true
+            
+        default:
+            return false
+        }
+    }
+    
+    func tokenIsComplete() -> Bool {
+        if _position == _template.unicodeScalars.endIndex {
+            // we've reached the end of the template
+            
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
+    // reset the tokenizer for matching new date
+    func prepareForReuse() {
+        _dateText = ""
+        _position = _template.unicodeScalars.startIndex
+    }
+    
+    struct DateFormatToken: TokenType {
+        let text: String
+        let range: Range<String.Index>
+    }
+    
+    func makeToken(text: String, range: Range<String.Index>) -> DateFormatToken {
+        return DateFormatToken(text: text, range: range)
+    }
 }
 
 // Scanner extensions

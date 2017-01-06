@@ -11,13 +11,10 @@ import Mustard
 
 final class DateTokenizer: TokenizerType, DefaultTokenizerType {
     
-    // private properties
     private let _template = "00/00/00"
     private var _position: String.UnicodeScalarIndex
     private var _dateText: String
     private var _date: Date?
-    
-    // public property
     
     required init() {
         _position = _template.unicodeScalars.startIndex
