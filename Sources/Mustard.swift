@@ -334,15 +334,17 @@ public extension String {
                         continue advanceTokenStart
                     }
                     else if tokenizer.advanceIfCompleteTokenIsInvalid() {
-                        // the token was not complete, or was invalid given the next scalar:
-                        // - tokenStartIndex remains unchanged
-                        // - advance the token index
-                        // - attempt to match with next token
+                        // - jump start index to current index (characters in this range will not
+                        // have chance to be matched with other tokenziers)
+                        // - start search for new token
                         
                         tokenStartIndex = currentIndex
                         continue advanceTokenStart
                     }
                     else {
+                        // maintain the start index to allow another tokenizer the chance
+                        // to match substring starting at this range
+                        
                         tokenizerIndex = possibleTokenizers.index(after: tokenizerIndex)
                         continue attemptToken
                     }
@@ -385,7 +387,6 @@ public extension String {
             tokenizer.prepareForReuse()
             
             guard let newTokenzier = tokenizer.tokenizerStartingWith(text.unicodeScalars[tokenStartIndex]) else {
-            
                 tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
                 continue advanceTokenStart
             }
@@ -419,25 +420,24 @@ public extension String {
                     continue advanceTokenStart
                 }
                 else if advanceWhenCompleteTokenIsInvalid || tokenizer.advanceIfCompleteTokenIsInvalid() {
+                    // - jump start index to current index (characters in this range will not
+                    // have chance to be matched with other tokenziers)
+                    // - start search for new token
+                    
                     tokenStartIndex = currentIndex
                     continue advanceTokenStart
                     
                 } else {
-                    // the token was not complete, or was invalid given the next scalar:
-                    // - tokenStartIndex remains unchanged
-                    // - advance the token index
-                    // - attempt to match with next token
+                    // maintain the start index to allow another tokenizer the chance
+                    // to match substring starting at this range
                     
-                    //print("case #1 advancing tokenStartIndex ")
                     tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
-                    
                     continue advanceTokenStart
                 }
             }
             
             // token has reached the end of the text
             // advance the tokenStartIndex to attempt match at next scalar
-            //print("case #2 advancing tokenStartIndex ")
             tokenStartIndex = text.unicodeScalars.index(after: tokenStartIndex)
         }
         
