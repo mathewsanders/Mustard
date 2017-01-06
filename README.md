@@ -50,18 +50,19 @@ let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letter
 
 ## Advanced matching with custom tokenizers
 
-Rather than being limited to matching substrings from character sets, you can create your own tokenizers with more
+Mustard can do more than match from character sets. You can create your own tokenizers with more
 sophisticated matching behavior by implementing the `TokenizerType` and `TokenType` protocols.
 
-Here's an example of using `DateTokenizer` ([see example](Documentation/Template tokenizer.md)
-for implementation) that matches substrings with a valid `MM/dd/yy` format. It returns tokens of the type `DateToken` which along with the substring text and range, also includes a `Date` object corresponding to the date in the substring:
+Here's an example of using `DateTokenizer` ([see example for implementation](Documentation/Template tokenizer.md)) that finds substrings that match a `MM/dd/yy` format.
+
+`DateTokenizer` returns tokens with the type `DateToken`. Along with the substring text and range, `DateToken` includes a `Date` object corresponding to the date in the substring:
 
 ````Swift
 import Mustard
 
-let messyInput = "Serial: #YF 1942-b 12/01/17 (Scanned) 12/03/17 (Arrived) ref: 99/99/99"
+let text = "Serial: #YF 1942-b 12/01/17 (Scanned) 12/03/17 (Arrived) ref: 99/99/99"
 
-let tokens = messyInput.tokens(matchedWith: DateTokenizer())
+let tokens = text.tokens(matchedWith: DateTokenizer())
 // tokens: [DateTokenizer.Token]
 // tokens.count -> 2
 // ('99/99/99' is *not* matched by `DateTokenizer` because it's not a valid date)
@@ -77,11 +78,11 @@ let tokens = messyInput.tokens(matchedWith: DateTokenizer())
 
 ## Type safety
 
-When matching with one tokenizer, or two or more tokenizers of the same type, mustard will return tokens with the Token type associated with the tokenizer.
+When matching a single tokenizer, or two or more tokenizers of the same type, Mustard will return tokens with type associated with the tokenizer.
 
-When matching using two or more tokenizers of different types, you'll need to convert the tokenizer to `AnyTokenizer`. The tokens returned will by of the protocol type `TokenType` but can be checked or converted to their own type.
+To use two or more tokenizers with different types, you'll need to convert the tokenizers to `AnyTokenizer` before passing into Mustard. Tokens returned with this method will have the type `TokenType` and you'll need to use type casting to get anything beyond the text or range of the token.
 
-Here's an example using `DateTokenizer`, and `CharacterSet` together.
+Here's an example using `DateTokenizer`, and `CharacterSet` together:
 
 ````Swift
 let tokens = "12/01/27 123".tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits.anyTokenizer)
@@ -102,7 +103,7 @@ for token in tokens {
 // digits are: 123
 ````
 
-Be aware that for tokenizers that don't define a custom `TokenType` mustard will use the general `AnyToken` as a default.
+Tokenizers that don't define a custom `TokenType` will have the general type `AnyToken`.
 
 ## Documentation & Examples
 

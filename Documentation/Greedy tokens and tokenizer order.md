@@ -2,13 +2,13 @@
 
 Tokenizers are greedy. The order that tokenizers are passed into the `matches(from: AnyTokenizer...)` will effect how substrings are matched.
 
-Here's an example using the `CharacterSet.decimalDigits` tokenizer and the custom tokenizer `DateTokenizer` that matches dates in the format `MM/dd/yy` ([see example](Template tokenizer.md) for implementation).
+Here's an example using the `CharacterSet.decimalDigits` tokenizer and the custom tokenizer `DateTokenizer` that matches dates in the format `MM/dd/yy` ([see example for implementation](Template tokenizer.md)).
 
 ````Swift
 import Mustard
 
 let numbers = "36 03/29/17"
-let tokens = numbers.tokens(matchedWith: CharacterSet.decimalDigits, DateTokenizer.defaultTokenizer)
+let tokens = numbers.tokens(matchedWith: CharacterSet.decimalDigits.anyTokenizer, DateTokenizer.defaultTokenizer)
 // tokens.count -> 4
 //
 // tokens[0] -> CharacterSetToken
@@ -29,13 +29,13 @@ let tokens = numbers.tokens(matchedWith: CharacterSet.decimalDigits, DateTokeniz
 
 ````
 
-To get expected behavior, the `tokens` method should be called with more specific tokenizers placed before more general tokenizers:
+To get expected behavior, of matching the dates, the more specific `DateTokenizer` should come before the more general `CharacterSet` tokenizer:
 
 ````Swift
 import Mustard
 
 let numbers = "36 03/29/17"
-let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits)
+let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits.anyTokenizer)
 // tokens.count -> 2
 //
 // tokens[0] -> CharacterSetToken
@@ -44,16 +44,16 @@ let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, Charact
 
 // tokens[1] -> DateToken
 // tokens[1].text -> "03/29/17"
-// tokens[1].date -> Date(03/29/17)
+// tokens[1].date -> Date(2017-03-29 05:00:00 +0000)
 ````
 
-If the more specific tokenizer `DateTokenizer` fails to match a token, the more general CharacterSet tokenizer still have a chance to perform matches:
+Then if the more specific tokenizer `DateTokenizer` fails to match a token, the `CharacterSet` tokenizer will still have a chance to perform matches:
 
 ````Swift
 import Mustard
 
 let numbers = "99/88/77 36"
-let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits)
+let tokens = numbers.tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits.anyTokenizer)
 // tokens.count -> 4
 //
 // tokens[0] -> CharacterSetToken

@@ -1,6 +1,6 @@
 ## DateTokenizer: matching against a template
 
-Another useful pattern is to identify substrings that match a certain pattern.
+Another useful pattern for tokenizers is to identify substrings that match a certain pattern.
 
 `DateTokenizer` is a more complex `TokenizerType` that not only matches substrings with the format `MM/dd/yy`
 but will also fail if the matched substring doesn't translate into a valid date (e.g. *'99/99/99'*).
@@ -19,13 +19,10 @@ func ~= (option: CharacterSet, input: UnicodeScalar) -> Bool {
 
 final class DateTokenizer: TokenizerType, DefaultTokenizerType {
 
-    // private properties
     private let _template = "00/00/00"
     private var _position: String.UnicodeScalarIndex
     private var _dateText: String
     private var _date: Date?
-
-    // public property
 
     required init() {
         _position = _template.unicodeScalars.startIndex
@@ -50,8 +47,8 @@ final class DateTokenizer: TokenizerType, DefaultTokenizerType {
         case ("\u{0030}", CharacterSet.decimalDigits), // match with a decimal digit
              ("\u{002F}", "\u{002F}"):                 // match with the '/' character
 
-            _position = _template.unicodeScalars.index(after: _position) // increment the template position
-            _dateText.unicodeScalars.append(scalar) // add scalar to text matched so far
+            _position = _template.unicodeScalars.index(after: _position) // increment the template position and
+            _dateText.unicodeScalars.append(scalar)                      // add scalar to text matched so far
             return true
 
         default:
@@ -100,9 +97,9 @@ Since the tokenizer defines and returns it's own type of token, with the additio
 ````Swift
 import Mustard
 
-let messyInput = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
+let text = "Serial: #YF 1942-b 12/01/27 (Scanned) 12/03/27 (Arrived) ref: 99/99/99"
 
-let dateTokens = messyInput.tokens(matchedWith: DateTokenizer())
+let dateTokens = text.tokens(matchedWith: DateTokenizer())
 // dateTokens: [DateTokenizer.Token]
 //
 // dateTokens.count -> 2
