@@ -9,7 +9,6 @@ let tokens = "123 456 abc def".tokens(matchedWith: .letters)
 //
 // token[1].text -> "abc"
 // token[2].text -> "def"
-//
 ````
 
 When using multiple tokenizers of different types, you'll need to convert the tokenizers to `AnyTokenizer` first so that they are the same type.
@@ -59,14 +58,13 @@ let tokens: [AnyToken] = "one two three four five six seven 8 9 10"
 for token in tokens {
 
     switch token.tokenizerType {
-      // Here we switch on `token.tokenizerType` to check what tokenizer made the token
-      // and use this to control the message that's printed
-
+      // token was made by `ThreeLetterWord` tokenizer
       case is ThreeLetterWord.Type:
-          print("3 letters:", token.text)
+        print("3 letters:", token.text)
 
+      // token was made by `FourLetterWord` tokenizer
       case is FourLetterWord.Type:
-          print("4 letters:", token.text)
+        print("4 letters:", token.text)
 
     default: break
     }
