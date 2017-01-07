@@ -76,38 +76,10 @@ let tokens = text.tokens(matchedWith: DateTokenizer())
 // tokens[1].date -> Date(2017-12-03 05:00:00 +0000)
 ````
 
-## Type safety
-
-When matching a single tokenizer, or two or more tokenizers of the same type, Mustard will return tokens with type associated with the tokenizer.
-
-To use two or more tokenizers with different types, you'll need to convert the tokenizers to `AnyTokenizer` before passing into Mustard. Tokens returned with this method will have the type `TokenType` and you'll need to use type casting to get anything beyond the text or range of the token.
-
-Here's an example using `DateTokenizer`, and `CharacterSet` together:
-
-````Swift
-let tokens = "12/01/27 123".tokens(matchedWith: DateTokenizer.defaultTokenizer, CharacterSet.decimalDigits.anyTokenizer)
-// tokens: [TokenType]
-// tokens.count -> 2
-
-for token in tokens {
-    switch token {
-      case is DateTokenizer.Token:
-        print("date is:", token.text)
-      case is CharacterSet.Token:
-        print("digits are:", token.text)
-      default: break
-    }
-}
-// -> prints
-// date is: 12/01/27
-// digits are: 123
-````
-
-Tokenizers that don't define a custom `TokenType` will have the general type `AnyToken`.
-
 ## Documentation & Examples
 
 - [Greedy tokens and tokenizer order](Documentation/Greedy tokens and tokenizer order.md)
+- [Token types and AnyToken](Documentation/Token types and AnyToken.md)
 - [TokenizerType: implementing your own tokenizer](Documentation/TokenizerType protocol.md)
 - [EmojiTokenizer: matching emoji substrings](Documentation/Matching emoji.md)
 - [LiteralTokenizer: matching specific substrings](/Documentation/Literal tokenizer.md)

@@ -45,18 +45,31 @@ class PerformanceTests: XCTestCase {
         }
     }
     
-    func testPerformance_Words_MustardMatchedWithLetters() {
+    func testPerformance_Words_MustardMatchedWithLetters_anytokenzier() {
         
-        let matchingCharacters = CharacterSet.letters
-        
-        let check = self.sampleWordsWithSeparatingSpaces.components(matchedWith: matchingCharacters)
+        let check = self.sampleWordsWithSeparatingSpaces.tokens(matchedWith: LetterMatch.defaultTokenzier)
         
         // "Wasn't" matched as two components
         XCTAssert(check.count == 31, "unexpected number of components \(check.count)")
         
         self.measure {
             for _ in 0..<self.iterations {
-                _ = self.sampleWordsWithSeparatingSpaces.components(matchedWith: matchingCharacters)
+                _ = self.sampleWordsWithSeparatingSpaces.tokens(matchedWith: LetterMatch.defaultTokenzier)
+            }
+        }
+    }
+    
+    func testPerformance_Words_MustardMatchedWithLetters_fast() {
+        
+        let check  = self.sampleWordsWithSeparatingSpaces.tokens(matchedWith: LetterMatch())
+        
+        // "Wasn't" matched as two components
+        XCTAssert(check.count == 31, "unexpected number of components \(check.count)")
+        print("check.count", check.count)
+        
+        self.measure {
+            for _ in 0..<self.iterations {
+                _ = self.sampleWordsWithSeparatingSpaces.tokens(matchedWith: LetterMatch())
             }
         }
     }
@@ -78,7 +91,7 @@ class PerformanceTests: XCTestCase {
         return results
     }
     
-    func testPerformance_Words_ScannerIgnoreWhitespace() {
+    func testPerformance_Words_ScannerLetters() {
         
         let check = _wordsWithScannerScanningLetters(from: sampleWordsWithSeparatingSpaces)
         
@@ -269,7 +282,29 @@ class PerformanceTests: XCTestCase {
             }
         }
     }
+    
+    func testPerformance_DatesPattern_Mustard_fast() {
+        
+        
+        let check = sampleDates.tokens(matchedWith: DatePatternTokenizer(), advanceWhenCompleteTokenIsInvalid: true)
+        XCTAssert(check.count == 6, "unexpected number of matches \(check.count)")
+        XCTAssert(check[0].text == "01/55/99")
+        
+        self.measure {
+            for _ in 0..<self.iterations {
+                _ = self.sampleDates.tokens(matchedWith: DatePatternTokenizer(), advanceWhenCompleteTokenIsInvalid: true)
+            }
+        }
+    }
 }
+
+
+struct LetterMatch: TokenizerType, DefaultTokenizerType {
+    func tokenCanTake(_ scalar: UnicodeScalar) -> Bool {
+        return CharacterSet.letters.contains(scalar)
+    }
+}
+
 
 final class DatePatternTokenizer: TokenizerType, DefaultTokenizerType {
     

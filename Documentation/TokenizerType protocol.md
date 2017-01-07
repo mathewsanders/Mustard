@@ -37,6 +37,9 @@ public protocol TokenizerType {
     // default implementation returns `false`
     func completeTokenIsInvalid(whenNextScalarIs scalar: UnicodeScalar?) -> Bool
 
+    // default implementation returns `false`
+    func advanceIfCompleteTokenIsInvalid() -> Bool
+
     // default implementation does nothing
     func prepareForReuse()
 
@@ -53,15 +56,13 @@ public protocol TokenizerType {
 
 ````
 
-The brief protocol `DefaultTokenizerType` can be used for tokenizers that have a default initializer,
-which provides some useful methods (see [type safety using a single tokenizer](Type safety using a single tokenizer) for more information).
+The protocol `DefaultTokenizerType` is used to identify tokenizers with a default initializer,
+which enables the `defaultTokenzier` property (which returns an instance of `AnyTokenizer`).
 
 ````Swift
-/// Defines the implementation needed for a TokenizerType to have some convenience methods
-/// enabled when the tokenizer has a default initializer.
 public protocol DefaultTokenizerType: TokenizerType {
 
-    /// Initialize an empty instance of the tokenizer.
+    /// Initialize a default instance of the tokenizer.
     init()
 }
 ````
