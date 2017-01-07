@@ -135,8 +135,8 @@ public struct AnyTokenizer: TokenizerType {
     private let _tokenCanTake: (UnicodeScalar) -> Bool
     private let _tokenIsComplete: () -> Bool
     private let _completeTokenIsInvalid: (UnicodeScalar?) -> Bool
-    private let _prepareForReuse: () -> ()
     private let _advanceIfCompleteTokenIsInvalid: () -> Bool
+    private let _prepareForReuse: () -> ()
     
     init<P>(_ tokenizer: P) where P: TokenizerType {
         _makeToken = tokenizer.makeToken
@@ -145,8 +145,8 @@ public struct AnyTokenizer: TokenizerType {
         _tokenCanTake = tokenizer.tokenCanTake
         _tokenIsComplete = tokenizer.tokenIsComplete
         _completeTokenIsInvalid = tokenizer.completeTokenIsInvalid
-        _prepareForReuse = tokenizer.prepareForReuse
         _advanceIfCompleteTokenIsInvalid = tokenizer.advanceIfCompleteTokenIsInvalid
+        _prepareForReuse = tokenizer.prepareForReuse
     }
     
     public func makeToken(text: String, range: Range<String.Index>) -> TokenType {
@@ -173,13 +173,14 @@ public struct AnyTokenizer: TokenizerType {
         return _completeTokenIsInvalid(scalar)
     }
     
+    public func advanceIfCompleteTokenIsInvalid() -> Bool {
+        return _advanceIfCompleteTokenIsInvalid()
+    }
+    
     public func prepareForReuse() {
         _prepareForReuse()
     }
     
-    public func advanceIfCompleteTokenIsInvalid() -> Bool {
-        return _advanceIfCompleteTokenIsInvalid()
-    }
 }
 
 /// Defines the implementation needed for a TokenizerType to have some convenience methods
@@ -191,8 +192,8 @@ public protocol DefaultTokenizerType: TokenizerType {
 }
 
 extension DefaultTokenizerType {
-    /// The default tokenzier for this type.
-    /// This is equivilent to using the default initalizer `init()`.
+    
+    /// Initialize and return default instance of the tokenizer.
     public static var defaultTokenzier: AnyTokenizer {
         return Self().anyTokenizer
     }
