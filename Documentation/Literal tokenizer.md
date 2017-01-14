@@ -96,4 +96,4 @@ for token in tokens {
 
 ````
 
-See [FuzzyMatchTokenTests.swift](/Mustard/MustardTests/FuzzyMatchTokenTests.swift) for a unit test that includes matching a literal String, but allowing some flexibility in the literal match by ignoring certain characters.
+See [FuzzyMatchTokenTests.swift](https://github.com/mathewsanders/Mustard/blob/master/Tests/FuzzyMatchTokenTests.swift) for a unit test that includes matching a literal String, but allowing some flexibility in the literal match by ignoring certain characters.
