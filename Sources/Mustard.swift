@@ -257,7 +257,7 @@ public extension String {
     /// opportunity to match a substring.
     ///
     /// Returns: An array of `Token` where each token is the type `Tokenizer.Token`.
-    func tokens<Tokenizer, Token>(matchedWith tokenizers: Tokenizer...) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+    func tokens<Tokenizer, Token>(matchedWith tokenizers: Tokenizer...) -> [Token] where Tokenizer: TokenizerType, Tokenizer.Token == Token {
         
         return _tokens(from: tokenizers.map({ $0.anyTokenizer })) as! [Token]
     }
@@ -297,7 +297,7 @@ public extension String {
         advanceTokenStart: while tokenStartIndex < text.unicodeScalars.endIndex {
             
             // prepare a backlog of tokens that can start with the current scalar
-            let possibleTokenizers = tokenizers.flatMap({ tokenizer -> AnyTokenizer? in
+            let possibleTokenizers = tokenizers.compactMap({ tokenizer -> AnyTokenizer? in
                 tokenizer.prepareForReuse()
                 return tokenizer.tokenizerStartingWith(text.unicodeScalars[tokenStartIndex])
             })
@@ -329,7 +329,7 @@ public extension String {
                         // - advance tokenStartIndex to the currentIndex; and
                         // - continue looking for tokens at new startIndex
                         
-                        tokens.append(tokenizer.makeToken(text: text[start..<next], range: start..<next))
+                        tokens.append(tokenizer.makeToken(text: String(text[start..<next]), range: start..<next))
                         
                         tokenStartIndex = currentIndex
                         continue advanceTokenStart
@@ -363,11 +363,11 @@ public extension String {
     
     // MARK: - Optimizations for single tokenizer
     
-    func tokens<Tokenizer, Token>(matchedWith tokenizer: Tokenizer, advanceWhenCompleteTokenIsInvalid: Bool) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+    func tokens<Tokenizer, Token>(matchedWith tokenizer: Tokenizer, advanceWhenCompleteTokenIsInvalid: Bool) -> [Token] where Tokenizer: TokenizerType, Tokenizer.Token == Token {
         return _tokens(from: tokenizer, advanceWhenCompleteTokenIsInvalid)
     }
     
-    func tokens<Tokenizer, Token>(matchedWith tokenizer: Tokenizer) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+    func tokens<Tokenizer, Token>(matchedWith tokenizer: Tokenizer) -> [Token] where Tokenizer: TokenizerType, Tokenizer.Token == Token {
         return _tokens(from: tokenizer)
     }
     
@@ -375,7 +375,7 @@ public extension String {
         return _tokens(from: tokenizer).map({ $0.text })
     }
     
-    internal func _tokens<Tokenizer, Token>(from singleTokenizer: Tokenizer, _ advanceWhenCompleteTokenIsInvalid: Bool = false) -> [Token] where Tokenizer: TokenizerType, Token: TokenType, Tokenizer.Token == Token {
+    internal func _tokens<Tokenizer, Token>(from singleTokenizer: Tokenizer, _ advanceWhenCompleteTokenIsInvalid: Bool = false) -> [Token] where Tokenizer: TokenizerType, Tokenizer.Token == Token {
         
         let text = self
         var tokens: [Token] = []
@@ -415,7 +415,7 @@ public extension String {
                     // - advance tokenStartIndex to the currentIndex; and
                     // - continue looking for tokens at new startIndex
                     
-                    tokens.append(tokenizer.makeToken(text: text[start..<next], range: start..<next) as! Token)
+                    tokens.append(tokenizer.makeToken(text: String(text[start..<next]), range: start..<next) as! Token)
                     
                     tokenStartIndex = currentIndex
                     continue advanceTokenStart

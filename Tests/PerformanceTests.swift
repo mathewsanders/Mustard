@@ -142,7 +142,7 @@ class PerformanceTests: XCTestCase {
         let matches = formatter.matches(in: text, options: [], range: text.nsrange)
         
         return matches.map { match in
-            text.substring(with: match.rangeAt(0))!
+            String(text[Range(match.range, in: text)!])
         }
     }
     
@@ -213,7 +213,7 @@ class PerformanceTests: XCTestCase {
         let matches = formatter.matches(in: text, options: [], range: text.nsrange)
         
         return matches.map { match in
-            text.substring(with: match.rangeAt(0))!
+            String(text[Range(match.range, in: text)!])
         }
     }
     
@@ -240,7 +240,7 @@ class PerformanceTests: XCTestCase {
         let matches = formatter.matches(in: text, options: [], range: text.nsrange)
         
         return matches.map { match in
-            text.substring(with: match.rangeAt(0))!
+            String(text[Range(match.range, in: text)!])
         }
     }
     
@@ -367,18 +367,17 @@ final class DatePatternTokenizer: TokenizerType, DefaultTokenizerType {
 // Scanner extensions
 extension Scanner {
     func scanCharacters(from set: CharacterSet) -> String? {
-        var value: NSString? = ""
-        if scanCharacters(from:set, into: &value),
-            let value = value as? String {
+        var valueNS: NSString? = ""
+        if scanCharacters(from:set, into: &valueNS),
+            let value = valueNS as String? {
             return value
         }
         return nil
     }
     
     func scanUpToCharacters(from set: CharacterSet) -> String? {
-        var value: NSString? = ""
-        if scanUpToCharacters(from: set, into: &value),
-            let value = value as? String {
+        var valueNS: NSString? = ""
+        if scanUpToCharacters(from: set, into: &valueNS), let value = valueNS as String? {
             return value
         }
         return nil
@@ -407,7 +406,7 @@ extension String {
     var nsrange: NSRange {
         return NSRange(location: 0, length: utf16.count)
     }
-    
+    /*
     /// Returns a substring with the given `NSRange`,
     /// or `nil` if the range can't be converted.
     func substring(with nsrange: NSRange) -> String? {
@@ -417,6 +416,8 @@ extension String {
         let end = UTF16Index(range.upperBound)
         return String(utf16[start..<end])
     }
+ */
+    /*
     
     /// Returns a range equivalent to the given `NSRange`,
     /// or `nil` if the range can't be converted.
@@ -431,4 +432,5 @@ extension String {
         
         return start..<end
     }
+ */
 }
