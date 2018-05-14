@@ -97,7 +97,7 @@ let tokens = text.tokens(matchedWith: DateTokenizer())
 
 ## Requirements
 
-- Swift 4.0
+- Swift 4.1
 
 ## Author
 
