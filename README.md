@@ -6,11 +6,11 @@ Mustard is a Swift library for tokenizing strings when splitting by whitespace d
 
 ## Quick start using character sets
 
-Foundation includes the `String` method [`components(separatedBy:)`](https://developer.apple.com/reference/swift/string/1690777-components) that allows us to get substrings divided up by certain characters:
+Foundation includes the `String` method [`components(separatedBy:)`](https://developer.apple.com/documentation/foundation/nsstring/1413214-components) that allows us to get substrings divided up by certain characters:
 
 ````Swift
 let sentence = "hello 2017 year"
-let words = sentence.components(separatedBy: .whitespace)
+let words = sentence.components(separatedBy: .whitespaces)
 // words.count -> 3
 // words = ["hello", "2017", "year"]
 ````  
@@ -53,7 +53,7 @@ let tokens = "123Hello world&^45.67".tokens(matchedWith: .decimalDigits, .letter
 Mustard can do more than match from character sets. You can create your own tokenizers with more
 sophisticated matching behavior by implementing the `TokenizerType` and `TokenType` protocols.
 
-Here's an example of using `DateTokenizer` ([see example for implementation](Documentation/Template tokenizer.md)) that finds substrings that match a `MM/dd/yy` format.
+Here's an example of using `DateTokenizer` ([see example for implementation](Documentation/Template%20tokenizer.md)) that finds substrings that match a `MM/dd/yy` format.
 
 `DateTokenizer` returns tokens with the type `DateToken`. Along with the substring text and range, `DateToken` includes a `Date` object corresponding to the date in the substring:
 
@@ -78,14 +78,14 @@ let tokens = text.tokens(matchedWith: DateTokenizer())
 
 ## Documentation & Examples
 
-- [Greedy tokens and tokenizer order](Documentation/Greedy tokens and tokenizer order.md)
-- [Token types and AnyToken](Documentation/Token types and AnyToken.md)
-- [TokenizerType: implementing your own tokenizer](Documentation/TokenizerType protocol.md)
-- [EmojiTokenizer: matching emoji substrings](Documentation/Matching emoji.md)
-- [LiteralTokenizer: matching specific substrings](/Documentation/Literal tokenizer.md)
-- [DateTokenizer: tokenizer based on template match](Documentation/Template tokenizer.md)
-- [Alternatives to using Mustard](/Documentation/Alternatives to using Mustard.md)
-- [Performance comparisons](/Documentation/Performance Comparisons.md)
+- [Greedy tokens and tokenizer order](Documentation/Greedy%20tokens%20and%20tokenizer%20order.md)
+- [Token types and AnyToken](Documentation/Token%20types%20and%20AnyToken.md)
+- [TokenizerType: implementing your own tokenizer](Documentation/TokenizerType%20protocol.md)
+- [EmojiTokenizer: matching emoji substrings](Documentation/Matching%20emoji.md)
+- [LiteralTokenizer: matching specific substrings](Documentation/Literal%20tokenizer.md)
+- [DateTokenizer: tokenizer based on template match](Documentation/Template%20tokenizer.md)
+- [Alternatives to using Mustard](Documentation/Alternatives%20to%20using%20Mustard.md)
+- [Performance comparisons](Documentation/Performance%20Comparisons.md)
 
 ## Roadmap
 - [x] Include detailed examples and documentation
@@ -97,7 +97,7 @@ let tokens = text.tokens(matchedWith: DateTokenizer())
 
 ## Requirements
 
-- Swift 3.0
+- Swift 4.1
 
 ## Author
 
